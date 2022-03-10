@@ -1,7 +1,8 @@
 import Table from "cli-table3";
+import ConfigureCommand from "./commands/configure";
 
 async function configure() {
-  // await ConfigureCommand.run()
+  await ConfigureCommand.run();
 
   const table: Table.Table = new Table({
     head: [
