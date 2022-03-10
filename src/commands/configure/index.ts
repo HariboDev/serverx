@@ -6,7 +6,12 @@ const inquirer = require("inquirer");
 const axios = require("axios");
 
 interface IConfigData {
-  "pem Directory": string;
+  pemDir: string;
+}
+
+interface IDataData {
+  confirm?: boolean;
+  ip?: string;
 }
 
 export default class ConfigureCommand extends Command {
@@ -67,19 +72,21 @@ Add accounts and customise serverx
       }
     }
 
-    const configData: IConfigData = await inquirer.prompt([{
-      type: "input",
-      name: "pemDirectory",
-      message: "Default .pem directory",
-      default: process.platform === "win32" ? "/ssh" : `${process.env.HOME}/.ssh`,
-      validate: (value: string) => {
-        if (process.platform !== "win32") {
-          value = value.replace("~", process.env.HOME || "");
-        }
+    const configData: IConfigData = await inquirer.prompt([
+      {
+        type: "input",
+        name: "pemDir",
+        message: "Default .pem directory",
+        default: process.platform === "win32" ? "/ssh" : `${process.env.HOME}/.ssh`,
+        validate: (value: string) => {
+          if (process.platform !== "win32") {
+            value = value.replace("~", process.env.HOME || "");
+          }
 
-        return fs.existsSync(value);
+          return fs.existsSync(value);
+        }
       }
-    }]);
+    ]);
 
     try {
       fs.writeFileSync(path.join(this.config.configDir, "config.json"), JSON.stringify(configData));
@@ -104,7 +111,7 @@ Add accounts and customise serverx
       }
     }
 
-    let publicIP;
+    let publicIP: string;
 
     try {
       const response = await axios.get("https://api.ipify.org");
@@ -115,9 +122,35 @@ Add accounts and customise serverx
       return;
     }
 
-    const dataData = {
-      IP: publicIP
-    };
+    const dataData: IDataData = await inquirer.prompt([
+      {
+        type: "confirm",
+        name: "confirm",
+        message: `Current IP: ${publicIP}`,
+        default: true
+      },
+      {
+        type: "input",
+        name: "ip",
+        message: "Enter your public IP",
+        default: publicIP,
+        when: (data: any) => !data.confirm,
+        validate: (value: string) => {
+          const regExp = new RegExp(/^(?:\d{1,3}\.){3}\d{1,3}$/);
+          if (regExp.test(value)) {
+            return true;
+          }
+
+          return "Invalid IPv4 address";
+        }
+      }
+    ]);
+
+    if (dataData.confirm) {
+      dataData.ip = publicIP;
+    }
+
+    delete dataData.confirm;
 
     try {
       fs.writeFileSync(path.join(this.config.dataDir, "data.json"), JSON.stringify(dataData));

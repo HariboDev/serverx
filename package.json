@@ -31,6 +31,7 @@
     "is-port-reachable": "^4.0.0",
     "mocked-env": "^1.3.5",
     "net": "^1.0.2",
+    "node-ssh": "^12.0.3",
     "path": "^0.12.7",
     "shelljs": "^0.8.5"
   },
@@ -49,7 +50,7 @@
     "shx": "^0.3.3",
     "ts-node": "^10.2.1",
     "tslib": "^2.3.1",
-    "typescript": "4.4.3"
+    "typescript": "4.6.2"
   },
   "oclif": {
     "bin": "serverx",
