@@ -126,7 +126,8 @@ Add accounts and customise serverx
       {
         type: "confirm",
         name: "confirm",
-        message: `Current IP: ${publicIP}`
+        message: `Current IP: ${publicIP}`,
+        default: true
       },
       {
         type: "input",
@@ -140,8 +141,7 @@ Add accounts and customise serverx
             return true;
           }
 
-          console.log("\nInvalid IPv4 address");
-          return false;
+          return "Invalid IPv4 address";
         }
       }
     ]);
