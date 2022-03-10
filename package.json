@@ -1,0 +1,96 @@
+{
+  "name": "serverx",
+  "version": "0.0.0",
+  "description": "Centrally manage AWS, GCP and on-premise servers and connet to them via SSH. Update security group, access control list, firewall and security policy rules with your new public IP.",
+  "author": "HariboDev",
+  "bin": {
+    "serverx": "./bin/run"
+  },
+  "homepage": "https://github.com/HariboDev/serverx",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "repository": "HariboDev/serverx",
+  "files": [
+    "/bin",
+    "/dist",
+    "/npm-shrinkwrap.json",
+    "/oclif.manifest.json"
+  ],
+  "dependencies": {
+    "@oclif/core": "^1",
+    "@oclif/plugin-help": "^5",
+    "@oclif/plugin-plugins": "^2.0.1",
+    "@types/inquirer": "^8.2.0",
+    "@types/shelljs": "^0.8.11",
+    "aws-sdk": "^2.1090.0",
+    "axios": "^0.26.1",
+    "chalk": "^2.4.2",
+    "cli-table3": "^0.6.1",
+    "fs": "^0.0.1-security",
+    "inquirer": "^8.2.1",
+    "is-port-reachable": "^4.0.0",
+    "path": "^0.12.7",
+    "shelljs": "^0.8.5"
+  },
+  "devDependencies": {
+    "@oclif/test": "^2",
+    "@types/chai": "^4",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^16.9.4",
+    "chai": "^4",
+    "eslint": "^7.32.0",
+    "eslint-config-oclif": "^4",
+    "eslint-config-oclif-typescript": "^1.0.2",
+    "globby": "^11",
+    "mocha": "^9",
+    "oclif": "^2",
+    "shx": "^0.3.3",
+    "ts-node": "^10.2.1",
+    "tslib": "^2.3.1",
+    "typescript": "4.4.3"
+  },
+  "oclif": {
+    "bin": "serverx",
+    "dirname": "serverx",
+    "commands": "./dist/commands",
+    "plugins": [
+      "@oclif/plugin-help"
+    ],
+    "topicSeparator": " ",
+    "topics": {}
+  },
+  "scripts": {
+    "build": "shx rm -rf dist && tsc -b",
+    "lint": "eslint . --ext .ts --config .eslintrc",
+    "lint:fix": "npm run lint -- --fix",
+    "postpack": "shx rm -f oclif.manifest.json",
+    "prepack": "npm run build && oclif manifest && oclif readme",
+    "test": "mocha --forbid-only \"test/**/*.test.ts\"",
+    "version": "oclif readme && git add README.md"
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "bugs": "https://github.com/HariboDev/serverx/issues",
+  "keywords": [
+    "rules",
+    "ssh",
+    "aws",
+    "security",
+    "cloud",
+    "ec2",
+    "network",
+    "firewall",
+    "ingress",
+    "gcp",
+    "acl",
+    "sg",
+    "compute",
+    "security-group",
+    "access-control-list",
+    "security-policy",
+    "egress",
+    "conneect" 
+  ],
+  "types": "dist/index.d.ts"
+}
