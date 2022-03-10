@@ -29,8 +29,126 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
+* [`serverx accounts ACTION`](#serverx-accounts-action)
+* [`serverx accounts deregister`](#serverx-accounts-deregister)
+* [`serverx accounts list`](#serverx-accounts-list)
+* [`serverx accounts modify`](#serverx-accounts-modify)
+* [`serverx accounts register`](#serverx-accounts-register)
 * [`serverx configure`](#serverx-configure)
 * [`serverx help [COMMAND]`](#serverx-help-command)
+
+## `serverx accounts ACTION`
+
+Display registered AWS & GCP accounts
+
+```
+USAGE
+  $ serverx accounts [ACTION] [-d]
+
+ARGUMENTS
+  ACTION  (list|register|remove|edit) List, register, remove or edit an account
+
+FLAGS
+  -d, --detail  Display extra account details
+
+DESCRIPTION
+  Display registered AWS & GCP accounts
+
+  Display registered AWS & GCP accounts
+
+EXAMPLES
+  $ serverx accounts
+
+  $ serverx accounts list
+
+  $ serverx accounts register
+
+  $ serverx accounts remove
+
+  $ serverx accounts edit
+```
+
+_See code: [dist/commands/accounts/index.ts](https://github.com/HariboDev/serverx/blob/v0.0.0/dist/commands/accounts/index.ts)_
+
+## `serverx accounts deregister`
+
+Deregister an account
+
+```
+USAGE
+  $ serverx accounts deregister [-d]
+
+FLAGS
+  -d, --detail  Display extra account details
+
+DESCRIPTION
+  Deregister an account
+
+  Deregister an AWS or GCP account with serverx
+
+EXAMPLES
+  $ serverx accounts deregeister
+```
+
+## `serverx accounts list`
+
+List accounts
+
+```
+USAGE
+  $ serverx accounts list [-d]
+
+FLAGS
+  -d, --detail  Display extra account details
+
+DESCRIPTION
+  List accounts
+
+  List registered AWS & GCP accounts
+
+EXAMPLES
+  $ serverx accounts list
+```
+
+## `serverx accounts modify`
+
+Register an account
+
+```
+USAGE
+  $ serverx accounts modify [-d]
+
+FLAGS
+  -d, --detail  Display extra account details
+
+DESCRIPTION
+  Register an account
+
+  Register an AWS or GCP account with serverx
+
+EXAMPLES
+  $ serverx accounts register
+```
+
+## `serverx accounts register`
+
+Register an account
+
+```
+USAGE
+  $ serverx accounts register [-d]
+
+FLAGS
+  -d, --detail  Display extra account details
+
+DESCRIPTION
+  Register an account
+
+  Register an AWS or GCP account with serverx
+
+EXAMPLES
+  $ serverx accounts register
+```
 
 ## `serverx configure`
 
@@ -47,8 +165,6 @@ DESCRIPTION
 
 EXAMPLES
   $ serverx configure
-
-  $ serverx configure --help
 ```
 
 _See code: [dist/commands/configure/index.ts](https://github.com/HariboDev/serverx/blob/v0.0.0/dist/commands/configure/index.ts)_

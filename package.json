@@ -29,6 +29,7 @@
     "fs": "^0.0.1-security",
     "inquirer": "^8.2.1",
     "is-port-reachable": "^4.0.0",
+    "node-ssh": "^12.0.3",
     "path": "^0.12.7",
     "shelljs": "^0.8.5"
   },
@@ -47,7 +48,7 @@
     "shx": "^0.3.3",
     "ts-node": "^10.2.1",
     "tslib": "^2.3.1",
-    "typescript": "4.4.3"
+    "typescript": "4.6.2"
   },
   "oclif": {
     "bin": "serverx",
@@ -90,7 +91,7 @@
     "access-control-list",
     "security-policy",
     "egress",
-    "conneect" 
+    "conneect"
   ],
   "types": "dist/index.d.ts"
 }
