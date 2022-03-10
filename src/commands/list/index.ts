@@ -8,7 +8,7 @@ export default class ListCommand extends Command {
 Gathers up to date EC2 instance data and displays summaries in a table
 `;
 
-    flags = {
+    static flags = {
       region: Flags.string({
         char: "r",
         description: "Only get instances in a specific region(s)",
@@ -66,7 +66,7 @@ Gathers up to date EC2 instance data and displays summaries in a table
     };
 
     async run(): Promise<void> {
-      const { flags }: any = this.parse(ListCommand);
+      const { flags }: any = await this.parse(ListCommand);
 
       let instancesData: any;
 
@@ -93,14 +93,12 @@ Gathers up to date EC2 instance data and displays summaries in a table
       });
 
       const managementChoice = [];
-
       if (flags.managed === "all") {
         managementChoice.push("awsManaged", "selfManaged");
       } else {
         if (flags.managed.includes("aws")) {
           managementChoice.push("awsManaged");
         }
-
         if (flags.managed.includes("self")) {
           managementChoice.push("selfManaged");
         }
@@ -157,7 +155,7 @@ Gathers up to date EC2 instance data and displays summaries in a table
             )
           ]);
         }
-
+        
         console.log(table.toString());
       }
     }
