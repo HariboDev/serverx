@@ -2,6 +2,7 @@
 import chalk from "chalk";
 const fs = require("fs");
 const path = require("path");
+import * as net from "net";
 
 export async function readJsonFile(jsonFile: string, filename: string): Promise<any> {
   let jsonData: any = {};
@@ -66,6 +67,37 @@ export async function createDir(dir: string, dirType: string): Promise<boolean> 
   } catch (error) {
     console.log(`${chalk.red("[ERROR]")} Unable to create ${dirType} directory`);
     console.log(`${chalk.red("[REASON]")} ${error}`);
+    return false;
+  }
+}
+
+export async function isPortReachable(port: number, { host, timeout = 1000 }: { host: string, timeout: number }): Promise<boolean> {
+  if (typeof host !== "string") {
+    throw new TypeError("Specify a `host`");
+  }
+
+  const promise = new Promise(((resolve, reject) => {
+    const socket = new net.Socket();
+
+    const onError = () => {
+      socket.destroy();
+      reject();
+    };
+
+    socket.setTimeout(timeout);
+    socket.once("error", onError);
+    socket.once("timeout", onError);
+
+    socket.connect(port, host, () => {
+      socket.end();
+      resolve("Done");
+    });
+  }));
+
+  try {
+    await promise;
+    return true;
+  } catch {
     return false;
   }
 }

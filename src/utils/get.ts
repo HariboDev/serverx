@@ -2,20 +2,20 @@ import * as AWS from "aws-sdk";
 const fs = require("fs");
 const path = require("path");
 const mockedEnv = require("mocked-env");
-//import * as mockedEnv from "mocked-env";
+// import * as mockedEnv from "mocked-env";
 import axios from "axios";
 import chalk from "chalk";
-import isReachable from "./is-reachable";
+import { isPortReachable } from "./utils";
 
 interface IConfigData {
-    pemDir?: string;
-    accountCredentials?: Array<IAccountCredentials>;
+  pemDir?: string;
+  accountCredentials?: Array<IAccountCredentials>;
 }
 interface IAccountCredentials {
-    awsAccountName: string;
-    awsAccessKey: string;
-    awsSecretAccessKey: string;
-    awsRole?: string;
+  awsAccountName: string;
+  awsAccessKey: string;
+  awsSecretAccessKey: string;
+  awsRole?: string;
 }
 
 export default function get(flags: any, config: any): Promise<any> {
@@ -108,7 +108,7 @@ export default function get(flags: any, config: any): Promise<any> {
               const restore = mockedEnv({
                 AWS_ACCESS_KEY_ID: account.awsAccessKey,
                 AWS_SECRET_ACCESS_KEY: account.awsSecretAccessKey
-              }); 
+              });
 
               const creds = new AWS.EnvironmentCredentials("AWS");
 
@@ -120,7 +120,10 @@ export default function get(flags: any, config: any): Promise<any> {
               roleCredentials = await sts.assumeRole(stsParams).promise()
                 .then((data: AWS.STS.AssumeRoleResponse) => {
                   return data;
-                }).catch(() => {});
+                }).catch((error) => {
+                  console.log(`${chalk.red("[ERROR]")} Unable to assume role: ${account.awsRole}`);
+                  console.log(`${chalk.red("[REASON]")} ${error.message}`);
+                });
 
               if (!roleCredentials) {
                 console.log(`${chalk.red("ERROR")} Unable to get role credentials for ${region}`);
@@ -242,7 +245,7 @@ export default function get(flags: any, config: any): Promise<any> {
           Account: instance.Account
         };
 
-        instanceData.Accessible = await isReachable(22, { host: instance.Address as string, timeout: 1000 });
+        instanceData.Accessible = await isPortReachable(22, { host: instance.Address as string, timeout: 1000 });
 
         instancesData.selfManaged.push(instanceData);
       }));

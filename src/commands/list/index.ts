@@ -1,7 +1,7 @@
 import { Command, Flags } from "@oclif/core";
 import Table from "cli-table3";
 import chalk from "chalk";
-import get from "../../get";
+import get from "../../utils/get";
 
 export default class ListCommand extends Command {
     static description = `Display EC2 instances
@@ -99,6 +99,7 @@ Gathers up to date EC2 instance data and displays summaries in a table
         if (flags.managed.includes("aws")) {
           managementChoice.push("awsManaged");
         }
+
         if (flags.managed.includes("self")) {
           managementChoice.push("selfManaged");
         }
@@ -155,7 +156,7 @@ Gathers up to date EC2 instance data and displays summaries in a table
             )
           ]);
         }
-        
+
         console.log(table.toString());
       }
     }
