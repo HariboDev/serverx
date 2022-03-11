@@ -1,5 +1,5 @@
 import { Command, Flags } from "@oclif/core";
-import listAccounts from "../../list-accounts";
+import listAccounts from "../../utils/list-accounts";
 
 export default class AccountsList extends Command {
   static description: string = `List accounts

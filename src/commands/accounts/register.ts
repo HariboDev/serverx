@@ -1,21 +1,8 @@
 import { Command, Flags } from "@oclif/core";
-const fs = require("fs");
-const path = require("path");
-import chalk from "chalk";
-import listAccounts from "../../list-accounts";
+import { readJsonFile, writeJsonFile } from "../../utils/utils";
+import listAccounts from "../../utils/list-accounts";
 const inquirer = require("inquirer");
-
-interface IConfigData {
-  pemDir?: string;
-  accountCredentials?: Array<IAccountCredentials>;
-}
-
-interface IAccountCredentials {
-  awsAccountName: string;
-  awsAccessKey: string;
-  awsSecretAccessKey: string;
-  awsRole?: string;
-}
+import { IConfigData, IAccountCredentials } from "../../utils/interfaces";
 
 export default class AccountsList extends Command {
   static description: string = `Register an account
@@ -37,18 +24,9 @@ Register an AWS or GCP account with serverx
   async run(): Promise<void> {
     const { flags }: any = await this.parse(AccountsList);
 
-    let configData: IConfigData = {};
+    const configData: IConfigData = await readJsonFile(this.config.configDir, "config");
 
-    try {
-      configData = JSON.parse(fs.readFileSync(path.join(this.config.configDir, "config.json")));
-      console.log(`${chalk.green("[INFO]")} Config file located`);
-
-      if (!configData.accountCredentials) {
-        configData.accountCredentials = [];
-      }
-    } catch (error) {
-      console.log(`${chalk.red("[ERROR]")} Unable to locate config file`);
-      console.log(`${chalk.red("[REASON]")} ${error}`);
+    if (!configData || !configData.accountCredentials) {
       return;
     }
 
@@ -114,12 +92,9 @@ Register an AWS or GCP account with serverx
 
     configData.accountCredentials.push(newAccount);
 
-    try {
-      fs.writeFileSync(path.join(this.config.configDir, "config.json"), JSON.stringify(configData));
-      console.log(`${chalk.green("[INFO]")} Successfully saved config data`);
-    } catch (error) {
-      console.log(`${chalk.red("[ERROR]")} Unable to save config file`);
-      console.log(`${chalk.red("[REASON]")} ${error}`);
+    const writeSuccess: boolean = await writeJsonFile(this.config.configDir, "config", JSON.stringify(configData));
+
+    if (!writeSuccess) {
       return;
     }
 

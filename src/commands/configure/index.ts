@@ -4,15 +4,8 @@ const path = require("path");
 import chalk from "chalk";
 const inquirer = require("inquirer");
 const axios = require("axios");
-
-interface IConfigData {
-  pemDir: string;
-}
-
-interface IDataData {
-  confirm?: boolean;
-  ip?: string;
-}
+import { IConfigData, IConfirmIpObject, IDataData, IInstancesData, IIpObject, IPemObject } from "../../utils/interfaces";
+import { createDir, readJsonFile, writeJsonFile } from "../../utils/utils";
 
 export default class ConfigureCommand extends Command {
   static description: string = `Configure serverx
@@ -31,48 +24,86 @@ Add accounts and customise serverx
   }
 
   async createDirectories(): Promise<boolean> {
-    if (fs.existsSync(this.config.configDir)) {
-      return true;
-    }
-
-    try {
-      fs.mkdirSync(this.config.configDir, { recursive: true });
-
-      console.log(`${chalk.green("[INFO]")} Package directory created successfully`);
-      return true;
-    } catch (error) {
-      console.log(`${chalk.red("[ERROR]")} Unable to create package directory`);
-      console.log(`${chalk.red("[REASON]")} ${error}`);
-      return false;
-    }
+    const createResponse: boolean = await createDir(this.config.configDir, "package");
+    return createResponse;
   }
 
   async createConfigFile(): Promise<void> {
-    if (fs.existsSync(this.config.configDir)) {
-      console.log(`${chalk.green("[INFO]")} Config directory located`);
-    } else {
-      try {
-        fs.mkdirSync(this.config.configDir, { recursive: true });
-        console.log(`${chalk.green("[INFO]")} Config directory created successfully`);
-      } catch (error) {
-        console.log(`${chalk.red("[ERROR]")} Unable to create config directory`);
-        console.log(`${chalk.red("[REASON]")} ${error}`);
-        return;
-      }
+    const createConfigDirResponse: boolean = await createDir(this.config.configDir, "config");
+
+    if (!createConfigDirResponse) {
+      return;
     }
+
+    let configData: IConfigData;
 
     if (fs.existsSync(path.join(this.config.configDir, "config.json"))) {
-      try {
-        console.log(`${chalk.green("[INFO]")} Config file located`);
-        JSON.parse(fs.readFileSync(path.join(this.config.configDir, "config.json")));
-      } catch (error) {
-        console.log(`${chalk.red("[ERROR]")} Unable to read config file`);
-        console.log(`${chalk.red("[REASON]")} ${error}`);
+      configData = await readJsonFile(this.config.configDir, "config");
+
+      if (!configData) {
         return;
       }
+
+      configData.pemDir = await this.askForPemDirectory();
+    } else {
+      configData = {
+        pemDir: await this.askForPemDirectory(),
+        accountCredentials: []
+      };
     }
 
-    const configData: IConfigData = await inquirer.prompt([
+    await writeJsonFile(this.config.configDir, "config", JSON.stringify(configData));
+  }
+
+  async createDataFile(): Promise<void> {
+    const createDataDirResponse: boolean = await createDir(this.config.dataDir, "data");
+
+    if (!createDataDirResponse) {
+      return;
+    }
+
+    let publicIP: string;
+
+    try {
+      const response = await axios.get("https://api.ipify.org");
+      publicIP = response.data;
+    } catch (error) {
+      console.log(`${chalk.red("[ERROR]")} Unable to get public IP`);
+      console.log(`${chalk.red("[REASON]")} ${error}`);
+      return;
+    }
+
+    const confirmIp: IConfirmIpObject = await inquirer.prompt([
+      {
+        type: "confirm",
+        name: "confirm",
+        message: `Public IP: ${publicIP}`,
+        default: true
+      }
+    ]);
+
+    const dataData: IDataData = {
+      ip: confirmIp.confirm ? publicIP : await this.askForIp(publicIP)
+    };
+
+    const writeDataFileResponse: boolean = await writeJsonFile(this.config.dataDir, "data", JSON.stringify(dataData));
+
+    if (!writeDataFileResponse) {
+      return;
+    }
+
+    if (!fs.existsSync(path.join(this.config.dataDir, "instances.json"))) {
+      const instancesData: IInstancesData = {
+        awsManaged: [],
+        selfManaged: []
+      };
+
+      await writeJsonFile(this.config.dataDir, "instances", JSON.stringify(instancesData));
+    }
+  }
+
+  async askForPemDirectory(): Promise<string> {
+    const directoryObject: IPemObject = await inquirer.prompt([
       {
         type: "input",
         name: "pemDir",
@@ -88,52 +119,16 @@ Add accounts and customise serverx
       }
     ]);
 
-    try {
-      fs.writeFileSync(path.join(this.config.configDir, "config.json"), JSON.stringify(configData));
-      console.log(`${chalk.green("[INFO]")} Successfully saved config data`);
-    } catch (error) {
-      console.log(`${chalk.red("[ERROR]")} Unable to save config file`);
-      console.log(`${chalk.red("[REASON]")} ${error}`);
-    }
+    return directoryObject.pemDir;
   }
 
-  async createDataFile(): Promise<void> {
-    if (fs.existsSync(this.config.dataDir)) {
-      console.log(`${chalk.green("[INFO]")} Data directory located`);
-    } else {
-      try {
-        fs.mkdirSync(this.config.dataDir, { recursive: true });
-        console.log(`${chalk.green("[INFO]")} Data directory created successfully`);
-      } catch (error) {
-        console.log(`${chalk.red("[ERROR]")} Unable to create data directory`);
-        console.log(`${chalk.red("[REASON]")} ${error}`);
-        return;
-      }
-    }
-
-    let publicIP: string;
-
-    try {
-      const response = await axios.get("https://api.ipify.org");
-      publicIP = response.data;
-    } catch (error) {
-      console.log(`${chalk.red("[ERROR]")} Unable to get public IP`);
-      console.log(`${chalk.red("[REASON]")} ${error}`);
-      return;
-    }
-
-    const dataData: IDataData = await inquirer.prompt([
-      {
-        type: "confirm",
-        name: "confirm",
-        message: `Current IP: ${publicIP}`,
-        default: true
-      },
+  async askForIp(publicIp: string): Promise<string> {
+    const ipObject: IIpObject = await inquirer.prompt([
       {
         type: "input",
         name: "ip",
         message: "Enter your public IP",
-        default: publicIP,
+        default: publicIp,
         when: (data: any) => !data.confirm,
         validate: (value: string) => {
           const regExp = new RegExp(/^(?:\d{1,3}\.){3}\d{1,3}$/);
@@ -146,34 +141,6 @@ Add accounts and customise serverx
       }
     ]);
 
-    if (dataData.confirm) {
-      dataData.ip = publicIP;
-    }
-
-    delete dataData.confirm;
-
-    try {
-      fs.writeFileSync(path.join(this.config.dataDir, "data.json"), JSON.stringify(dataData));
-      console.log(`${chalk.green("[INFO]")} Successfully saved data to data file`);
-    } catch (error) {
-      console.log(`${chalk.red("[ERROR]")} Unable to save data to data file`);
-      console.log(`${chalk.red("[REASON]")} ${error}`);
-      return;
-    }
-
-    if (!fs.existsSync(path.join(this.config.dataDir, "instances.json"))) {
-      try {
-        const instancesData = {
-          awsManaged: [],
-          selfManaged: []
-        };
-
-        fs.writeFileSync(path.join(this.config.dataDir, "instances.json"), JSON.stringify(instancesData));
-        console.log(`${chalk.green("[INFO]")} Successfully saved data to instances file`);
-      } catch (error) {
-        console.log(`${chalk.red("[ERROR]")} Unable to save data to instances file`);
-        console.log(`${chalk.red("[REASON]")} ${error}`);
-      }
-    }
+    return ipObject.ip;
   }
 }

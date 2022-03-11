@@ -1,7 +1,6 @@
 import Table from "cli-table3";
-const fs = require("fs");
-const path = require("path");
 import chalk from "chalk";
+import { readJsonFile } from "./utils";
 
 interface IConfigData {
   pemDir?: string;
@@ -16,14 +15,9 @@ interface IAccountCredentials {
 }
 
 export default async function listAccounts(configDir: string, detail: boolean): Promise<void> {
-  let configData: IConfigData = {};
+  const configData: IConfigData = await readJsonFile(configDir, "config");
 
-  try {
-    configData = JSON.parse(fs.readFileSync(path.join(configDir, "config.json")));
-    console.log(`${chalk.green("[INFO]")} Config file located`);
-  } catch (error) {
-    console.log(`${chalk.red("[ERROR]")} Unable to locate config file`);
-    console.log(`${chalk.red("[REASON]")} ${error}`);
+  if (!configData || !configData.accountCredentials) {
     return;
   }
 
