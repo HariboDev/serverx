@@ -8,7 +8,7 @@ export default class ListCommand extends Command {
 Gathers up to date EC2 instance data and displays summaries in a table
 `;
 
-    static flags = {
+    static flags: any = {
       region: Flags.string({
         char: "r",
         description: "Only get instances in a specific region(s)",
@@ -72,6 +72,7 @@ Gathers up to date EC2 instance data and displays summaries in a table
 
       try {
         instancesData = await get(flags, this.config);
+        console.log("This:", instancesData);
       } catch (error) {
         console.log(`${chalk.red("[REASON]")} ${error}`);
         return;
@@ -107,38 +108,58 @@ Gathers up to date EC2 instance data and displays summaries in a table
 
       for (const managed of managementChoice) {
         for (const instance of instancesData[managed]) {
+          let stateChalk;
+          switch (instance.State) {
+          case "running": {
+            stateChalk = chalk.green(`${instance.State}`);
+
+            break;
+          }
+
+          case "stopping": {
+            stateChalk = chalk.yellow(`${instance.State}`);
+            break;
+          }
+
+          case "pending": {
+            stateChalk = chalk.yellow(`${instance.State}`);
+            break;
+          }
+
+          case "unknown": {
+            stateChalk = chalk.grey(`${instance.State}`);
+
+            break;
+          }
+
+          default: {
+            stateChalk = chalk.red(`${instance.State}`);
+          }
+          }
+
           table.push([
             (managed === "awsManaged" ? instancesData[managed].indexOf(instance) : instancesData[managed].indexOf(instance) + instancesData.awsManaged.length),
             (instance.Name === "N/A" ?
-              chalk.grey(`${instance.Name}`)                    :
+              chalk.grey(`${instance.Name}`)              :
               chalk.white(`${instance.Name}`)
             ),
             (instance.Address === "N/A" ?
-              chalk.grey(`${instance.Address}`)                    :
+              chalk.grey(`${instance.Address}`)              :
               chalk.white(`${instance.Address}`)
             ),
             (instance["Key Pair"] === "N/A" ?
-              chalk.grey(`${instance["Key Pair"]}`)                    :
+              chalk.grey(`${instance["Key Pair"]}`)              :
               chalk.white(`${instance["Key Pair"]}`)
             ),
             (instance.Username === "N/A" ?
-              chalk.grey(`${instance.Username}`)                    :
+              chalk.grey(`${instance.Username}`)              :
               chalk.white(`${instance.Username}`)
             ),
-            (instance.State === "running" ?
-              chalk.green(`${instance.State}`)                    :
-              (instance.State === "stopping" || instance.State === "pending" ?
-                chalk.yellow(`${instance.State}`)                        :
-                (instance.State === "unknown" ?
-                  chalk.grey(`${instance.State}`)                            :
-                  chalk.red(`${instance.State}`)
-                )
-              )
-            ),
+            stateChalk,
             (instance.Accessible === true ?
-              chalk.green(`${instance.Accessible}`)                    :
+              chalk.green(`${instance.Accessible}`)              :
               (instance.Accessible === false ?
-                chalk.red(`${instance.Accessible}`)                        :
+                chalk.red(`${instance.Accessible}`)                :
                 chalk.white(`${instance.Accessible}`)
               )
             ),
