@@ -108,7 +108,7 @@ Gathers up to date EC2 instance data and displays summaries in a table
       for (const managed of managementChoice) {
         for (const instance of instancesData[managed]) {
           table.push([
-            (managed === "awsManaged" ? instance.indexOf(instance) : instance.indexOf(instance) + instancesData.awsManaged.length),
+            (managed === "awsManaged" ? instancesData[managed].indexOf(instance) : instancesData[managed].indexOf(instance) + instancesData.awsManaged.length),
             (instance.Name === "N/A" ?
               chalk.grey(`${instance.Name}`)                    :
               chalk.white(`${instance.Name}`)

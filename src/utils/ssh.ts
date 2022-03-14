@@ -1,7 +1,7 @@
-/* import chalk from "chalk"
+import chalk from "chalk"
 const { NodeSSH } = require('node-ssh')
 
-async function SSH(host, username, privateKey, password) {
+export default async function SSH(host: string, username: string, privateKey: any, password: string) {
   const ssh = new NodeSSH()
 
   if (password) {
@@ -12,7 +12,7 @@ async function SSH(host, username, privateKey, password) {
         username: username,
         password: password
       })
-    } catch (error) {
+    } catch (error: any) {
       if (error.message === "All configured authentication methods failed") {
         console.log(`${chalk.red('[ERROR]')} Invalid username or password`)
         return
@@ -29,7 +29,7 @@ async function SSH(host, username, privateKey, password) {
         username: username,
         privateKey: privateKey
       })
-    } catch (error) {
+    } catch (error: any) {
       if (error.message === "All configured authentication methods failed") {
         console.log(`${chalk.red('[ERROR]')} Invalid username or private key`)
         return
@@ -40,7 +40,7 @@ async function SSH(host, username, privateKey, password) {
     }
   }
 
-  const pipeStream = stream => {
+  const pipeStream = (stream: any) => {
     const { stdin, stdout, stderr } = process
     const { isTTY } = stdout
 
@@ -50,7 +50,7 @@ async function SSH(host, username, privateKey, password) {
     stream.stderr.pipe(stderr)
     stdin.pipe(stream)
 
-    const onResize =
+    const onResize: any =
       isTTY && (() => stream.setWindow(stdout.rows, stdout.columns, null, null))
     if (isTTY) {
       stream.once('data', onResize)
@@ -67,7 +67,7 @@ async function SSH(host, username, privateKey, password) {
   }
 
   await new Promise((resolve, reject) => {
-    ssh.connection.shell({ term: process.env.TERM || 'vt100' }, (err, stream) => {
+    ssh.connection.shell({ term: process.env.TERM || 'vt100' }, (err: any, stream: any) => {
       if (err) {
         reject(err)
         return
@@ -79,5 +79,3 @@ async function SSH(host, username, privateKey, password) {
 
   ssh.dispose()
 }
-
-module.exports = SSH; */
