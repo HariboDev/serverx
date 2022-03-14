@@ -3,6 +3,7 @@ import chalk from "chalk";
 const fs = require("fs");
 const path = require("path");
 import * as net from "net";
+import * as AWS from "aws-sdk";
 
 export async function readJsonFile(jsonFile: string, filename: string): Promise<any> {
   let jsonData: any = {};
@@ -99,5 +100,27 @@ export async function isPortReachable(port: number, { host, timeout = 1000 }: { 
     return true;
   } catch {
     return false;
+  }
+}
+
+export async function getEnabledRegions(ec2: AWS.EC2): Promise<Array<string>> {
+  try {
+    const regionsResponse: AWS.EC2.DescribeRegionsResult = await ec2.describeRegions().promise();
+
+    if (!regionsResponse.Regions) {
+      return [];
+    }
+
+    const regions: Array<string> = await Promise.all(regionsResponse.Regions.map((region: AWS.EC2.Region) => {
+      return region.RegionName || "";
+    }));
+
+    return regions.filter((region: string) => {
+      return region !== "";
+    });
+  } catch (error) {
+    console.log(`${chalk.red("[ERROR]")} Unable to get regions`);
+    console.log(`${chalk.red("[REASON]")} ${error}`);
+    return [];
   }
 }
