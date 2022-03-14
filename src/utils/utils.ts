@@ -4,13 +4,15 @@ const fs = require("fs");
 const path = require("path");
 import * as net from "net";
 import * as AWS from "aws-sdk";
+import axios from "axios";
+import { IAccountCredentials, IDataData, IIPChange } from "./interfaces";
 
-export async function readJsonFile(jsonFile: string, filename: string): Promise<any> {
+export async function readJsonFile(dir: string, filename: string): Promise<any> {
   let jsonData: any = {};
 
   try {
-    jsonData = JSON.parse(fs.readFileSync(path.join(jsonFile, `${filename}.json`)));
-    console.log(`${chalk.green("[INFO]")} ${filename[0].toUpperCase() + filename.slice(1)} file located`);
+    jsonData = JSON.parse(fs.readFileSync(path.join(dir, `${filename}.json`)));
+    console.log(`${chalk.green("[INFO]")} Located ${filename} file`);
   } catch (error) {
     console.log(`${chalk.red("[ERROR]")} Unable to locate ${filename} file`);
     console.log(`${chalk.red("[REASON]")} ${error}`);
@@ -20,10 +22,10 @@ export async function readJsonFile(jsonFile: string, filename: string): Promise<
   return jsonData;
 }
 
-export async function writeJsonFile(jsonFile: string, filename: string, data: string): Promise<any> {
+export async function writeJsonFile(dir: string, filename: string, data: string): Promise<boolean> {
   try {
-    fs.writeFileSync(path.join(jsonFile, `${filename}.json`), data);
-    console.log(`${chalk.green("[INFO]")} Successfully saved ${filename} data`);
+    fs.writeFileSync(path.join(dir, `${filename}.json`), data);
+    console.log(`${chalk.green("[INFO]")} Successfully saved to ${filename} file`);
     return true;
   } catch (error) {
     console.log(`${chalk.red("[ERROR]")} Unable to save ${filename} file`);
@@ -103,7 +105,13 @@ export async function isPortReachable(port: number, { host, timeout = 1000 }: { 
   }
 }
 
-export async function getEnabledRegions(ec2: AWS.EC2): Promise<Array<string>> {
+export async function getEnabledRegions(account: IAccountCredentials): Promise<Array<string>> {
+  const ec2: AWS.EC2 = new AWS.EC2({
+    accessKeyId: account.awsAccessKey,
+    secretAccessKey: account.awsSecretAccessKey,
+    region: "us-east-1"
+  });
+
   try {
     const regionsResponse: AWS.EC2.DescribeRegionsResult = await ec2.describeRegions().promise();
 
@@ -123,4 +131,50 @@ export async function getEnabledRegions(ec2: AWS.EC2): Promise<Array<string>> {
     console.log(`${chalk.red("[REASON]")} ${error}`);
     return [];
   }
+}
+
+export async function checkIpChanged(dir: string, filename: string): Promise<IIPChange | undefined> {
+  let newIp: string;
+
+  try {
+    const response = await axios.get("https://api.ipify.org");
+    newIp = response.data;
+  } catch (error) {
+    console.log(`${chalk.red("[ERROR]")} Unable to check for IP change`);
+    console.log(`${chalk.red("[REASON]")} ${error}`);
+    return;
+  }
+
+  const dataData: IDataData = await readJsonFile(dir, filename);
+
+  if (!dataData) {
+    return;
+  }
+
+  if (dataData.ip === newIp) {
+    console.log(`${chalk.green("[INFO]")} No IP change detected`);
+    console.log(`${chalk.green("[INFO]")} Current IP: ${newIp}`);
+
+    return {
+      newIp: newIp
+    };
+  }
+
+  const oldIp = dataData.ip;
+  dataData.ip = newIp;
+
+  console.log(`${chalk.green("[INFO]")} IP change detected`);
+  console.log(`${chalk.green("[INFO]")} Old IP: ${oldIp}`);
+  console.log(`${chalk.green("[INFO]")} New IP: ${newIp}`);
+
+  const writeResponse = await writeJsonFile(dir, filename, JSON.stringify(dataData));
+
+  if (!writeResponse) {
+    return;
+  }
+
+  return {
+    newIp: newIp,
+    oldIp: oldIp
+  };
 }

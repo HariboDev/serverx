@@ -17,7 +17,7 @@ interface IAccountCredentials {
 export default async function listAccounts(configDir: string, detail: boolean): Promise<void> {
   const configData: IConfigData = await readJsonFile(configDir, "config");
 
-  if (!configData || !configData.accountCredentials) {
+  if (!configData) {
     return;
   }
 
@@ -31,7 +31,7 @@ export default async function listAccounts(configDir: string, detail: boolean): 
     ]
   });
 
-  for (const account of configData?.accountCredentials || []) {
+  for (const account of configData.accountCredentials || []) {
     let secret: string = account.awsSecretAccessKey;
 
     if (!detail) {

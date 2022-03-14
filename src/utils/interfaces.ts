@@ -38,3 +38,8 @@ export interface IAccountCredentials {
   awsSecretAccessKey: string;
   awsRole?: string;
 }
+
+export interface IIPChange {
+  newIp: string;
+  oldIp?: string;
+}
