@@ -1,7 +1,7 @@
 import { Command, Flags } from "@oclif/core";
 import chalk from "chalk";
-import { IAccountCredentials, IConfigData, IIPChange } from "../../utils/interfaces";
-import { getEnabledRegions, checkIpChanged, readJsonFile } from "../../utils/utils";
+import { IAccountCredentials, IConfigData, IDataData, IIPChange } from "../../utils/interfaces";
+import { getEnabledRegions, checkIpChanged, readJsonFile, writeJsonFile } from "../../utils/utils";
 import * as AWS from "aws-sdk";
 
 export default class UpdateCommand extends Command {
@@ -46,7 +46,13 @@ Checks if your public IP has changed and updates relevant AWS security groups
   async run(): Promise<void> {
     const { flags } = await this.parse(UpdateCommand);
 
-    const checkResponse: IIPChange | undefined = await checkIpChanged(this.config.dataDir, "data");
+    const dataData: IDataData = await readJsonFile(this.config.dataDir, "data");
+
+    if (!dataData) {
+      return;
+    }
+
+    const checkResponse: IIPChange | undefined = await checkIpChanged(dataData);
 
     if (!checkResponse) {
       return;
@@ -67,11 +73,14 @@ Checks if your public IP has changed and updates relevant AWS security groups
         for await (const region of regions) {
           await this.checkRegion(region, account, checkResponse.newIp, checkResponse.oldIp);
         }
+
+        dataData.ip = checkResponse.newIp;
+        await writeJsonFile(this.config.dataDir, "data", JSON.stringify(dataData));
       }
     }
   }
 
-  async checkRegion(region: string, account: IAccountCredentials, newIp: string, oldIp?: string): Promise<void> {
+  async checkRegion(region: string, account: IAccountCredentials, newIp: string, oldIp: string): Promise<void> {
     console.log(`${chalk.green("[INFO]")} Checking region: ${region}`);
 
     const ec2 = new AWS.EC2({
@@ -88,6 +97,8 @@ Checks if your public IP has changed and updates relevant AWS security groups
         return;
       }
 
+      let relevantRule: boolean = false;
+
       for await (const securityGroup of securityGroupsResponse.SecurityGroups) {
         if (!securityGroup.GroupId || !securityGroup.IpPermissions || securityGroup.IpPermissions.length === 0) {
           return;
@@ -95,19 +106,24 @@ Checks if your public IP has changed and updates relevant AWS security groups
 
         for await (const ipPerms of securityGroup.IpPermissions) {
           if (!ipPerms.IpRanges || ipPerms.IpRanges.length === 0) {
-            return;
+            continue;
           }
 
           for await (const ranges of ipPerms.IpRanges) {
             if (ranges.CidrIp === oldIp + "/32") {
+              relevantRule = true;
               const authorizeResponse: boolean = await this.addRuleToSecurityGroup(ec2, securityGroup.GroupId, ipPerms, newIp);
 
               if (authorizeResponse && oldIp) {
-                this.deleteRuleFromSecurityGroup(ec2, securityGroup.GroupId, ipPerms, oldIp);
+                await this.deleteRuleFromSecurityGroup(ec2, securityGroup.GroupId, ipPerms, oldIp);
               }
             }
           }
         }
+      }
+
+      if (!relevantRule) {
+        console.log(`${chalk.green("[INFO]")} No relevant ingress rules to change`);
       }
     } catch (error) {
       console.log(`${chalk.red("[ERROR]")} Unable to describe security groups`);
