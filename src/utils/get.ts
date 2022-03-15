@@ -1,9 +1,9 @@
 import * as AWS from "aws-sdk";
-const fs = require("fs");
-const path = require("path");
 import axios from "axios";
 import chalk from "chalk";
-import { isPortReachable } from "./utils";
+const fs = require("fs");
+const path = require("path");
+import { isPortReachable, readJsonFile, writeJsonFile } from "./utils";
 import { IConfigData } from "../utils/interfaces";
 import { FlagInput } from "@oclif/core/lib/interfaces";
 import { Config } from "@oclif/core";
@@ -16,16 +16,17 @@ export default async function get(flags: FlagInput<any>, config: Config): Promis
   let configData: IConfigData;
 
   try {
-    configData = JSON.parse(fs.readFileSync(path.join(config.configDir, "config.json")));
+    configData = await readJsonFile(config.configDir, "config");
     console.log(`${chalk.green("[INFO]")} Config file located`);
   } catch (error) {
     console.log(`${chalk.red("[ERROR]")} Unable to locate config file`);
     return Promise.reject(error);
   }
 
-  let selfManagedInstances = [];
+  let selfManagedInstances: any = [];
 
   try {
+    //FIX THE LINE BELOW TO USE UTILS
     selfManagedInstances = JSON.parse(fs.readFileSync(path.join(config.dataDir, "instances.json"))).selfManaged || [];
     console.log(`${chalk.green("[INFO]")} Data file located`);
   } catch {
@@ -100,7 +101,7 @@ export default async function get(flags: FlagInput<any>, config: Config): Promis
   }
 
   try {
-    fs.writeFileSync(path.join(config.dataDir, "instances.json"), JSON.stringify(instancesData));
+    writeJsonFile(config.dataDir, "instances", JSON.stringify(instancesData));
     console.log(`${chalk.green("[INFO]")} Instances gathered`);
     return instancesData;
   } catch (error) {
