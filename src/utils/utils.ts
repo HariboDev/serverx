@@ -133,7 +133,7 @@ export async function getEnabledRegions(account: IAccountCredentials): Promise<A
   }
 }
 
-export async function checkIpChanged(dir: string, filename: string): Promise<IIPChange | undefined> {
+export async function checkIpChanged(dataData: IDataData): Promise<IIPChange | undefined> {
   let newIp: string;
 
   try {
@@ -142,12 +142,6 @@ export async function checkIpChanged(dir: string, filename: string): Promise<IIP
   } catch (error) {
     console.log(`${chalk.red("[ERROR]")} Unable to check for IP change`);
     console.log(`${chalk.red("[REASON]")} ${error}`);
-    return;
-  }
-
-  const dataData: IDataData = await readJsonFile(dir, filename);
-
-  if (!dataData) {
     return;
   }
 
@@ -166,12 +160,6 @@ export async function checkIpChanged(dir: string, filename: string): Promise<IIP
   console.log(`${chalk.green("[INFO]")} IP change detected`);
   console.log(`${chalk.green("[INFO]")} Old IP: ${oldIp}`);
   console.log(`${chalk.green("[INFO]")} New IP: ${newIp}`);
-
-  const writeResponse = await writeJsonFile(dir, filename, JSON.stringify(dataData));
-
-  if (!writeResponse) {
-    return;
-  }
 
   return {
     newIp: newIp,
