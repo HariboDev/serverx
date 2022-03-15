@@ -4,13 +4,14 @@ import listAccounts from "../../utils/list-accounts";
 import { readJsonFile, validateIndex, writeJsonFile } from "../../utils/utils";
 const inquirer = require("inquirer");
 import { IConfigData } from "../../utils/interfaces";
+import { FlagInput } from "@oclif/core/lib/interfaces";
 
-export default class DeregisterList extends Command {
+export default class AccountsDeregisterCommand extends Command {
   static description: string = `Deregister an account
-Deregister an AWS or GCP account with serverx
+Deregister an AWS or GCP account
 `;
 
-  static flags = {
+  static flags: FlagInput<any> = {
     detail: Flags.boolean({
       char: "d",
       description: "Display extra account details",
@@ -23,7 +24,7 @@ Deregister an AWS or GCP account with serverx
   ];
 
   async run(): Promise<void> {
-    const { flags }: any = await this.parse(DeregisterList);
+    const { flags }: any = await this.parse(AccountsDeregisterCommand);
 
     const configData: IConfigData = await readJsonFile(this.config.configDir, "config");
 

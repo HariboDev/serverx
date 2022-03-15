@@ -1,299 +1,298 @@
 import * as AWS from "aws-sdk";
-import axios from "axios";
 import chalk from "chalk";
-const fs = require("fs");
-const path = require("path");
-import { isPortReachable, readJsonFile, writeJsonFile } from "./utils";
-import { IConfigData } from "../utils/interfaces";
+import { isPortReachable, readJsonFile, writeJsonFile, getEnabledRegions, getCurrentIp } from "./utils";
+import { IConfigData, IInstancesData, IAccountCredentials, IInstance } from "./interfaces";
 import { FlagInput } from "@oclif/core/lib/interfaces";
 import { Config } from "@oclif/core";
 
-export default async function get(flags: FlagInput<any>, config: Config): Promise<any> {
-  const instancesData = {
-    awsManaged: [] as any,
-    selfManaged: [] as any
-  };
-  let configData: IConfigData;
+export default async function get(flags: FlagInput<any>, config: Config): Promise<IInstancesData | undefined> {
+  const configData: IConfigData = await readJsonFile(config.configDir, "config");
 
-  try {
-    configData = await readJsonFile(config.configDir, "config");
-    console.log(`${chalk.green("[INFO]")} Config file located`);
-  } catch (error) {
-    console.log(`${chalk.red("[ERROR]")} Unable to locate config file`);
-    return Promise.reject(error);
+  if (!configData) {
+    return;
   }
 
-  let selfManagedInstances: any = [];
+  const instancesData: IInstancesData = await readJsonFile(config.dataDir, "instances");
 
-  try {
-    //FIX THE LINE BELOW TO USE UTILS
-    selfManagedInstances = JSON.parse(fs.readFileSync(path.join(config.dataDir, "instances.json"))).selfManaged || [];
-    console.log(`${chalk.green("[INFO]")} Data file located`);
-  } catch {
-    selfManagedInstances = [];
-    console.log(`${chalk.red("[ERROR]")} Unable to locate data file`);
+  if (!instancesData) {
+    return;
   }
 
-  let regionFlag;
-  if (("accountCredentials" in configData)) {
-    flags.region.toString() === "all" ?
-      regionFlag = ["us-east-1",
-        "us-east-2",
-        "us-west-1",
-        "us-west-2",
-        "ap-south-1",
-        "ap-northeast-1",
-        "ap-northeast-2",
-        "ap-southeast-1",
-        "ap-southeast-2",
-        "ca-central-1",
-        "eu-central-1",
-        "eu-west-1",
-        "eu-west-2",
-        "eu-west-3",
-        "eu-north-1",
-        "sa-east-1"] :
-      regionFlag = flags.region.toString().split(",");
+  const accountsToSearch: Array<IAccountCredentials> = flags.account.toString() === "all" ?
+    configData.accountCredentials : configData.accountCredentials.filter((account: IAccountCredentials) => {
+      return flags.account.toString().split(",").includes(account.awsAccountName);
+    });
 
-    if (flags.managed.toString() === "all" || flags.managed.toString().split(",").includes("aws")) {
-      console.log(`${chalk.green("[INFO]")} Gathering AWS managed instances`);
+  if (JSON.parse(flags["no-refresh"].toString())) {
+    const instances: IInstancesData = {
+      aws: instancesData.aws.filter((instance: IInstance) => {
+        return accountsToSearch.some((account: IAccountCredentials) => {
+          return account.awsAccountName === instance.account;
+        }) &&
+          (flags.managed.toString() === "all" ||
+            flags.managed.toString().split(",").includes("aws")) &&
+          (flags.location.toString() === "all" ||
+            flags.location.toString().split(",").includes(instance.location)) &&
+          (flags.state.toString() === "all" ||
+            flags.state.toString().split(",").includes(instance.state));
+      }),
+      self: instancesData.self.filter((instance: IInstance) => {
+        return accountsToSearch.some((account: IAccountCredentials) => {
+          return account.awsAccountName === instance.account;
+        }) &&
+          (flags.managed.toString() === "all" ||
+            flags.managed.toString().split(",").includes("self")) &&
+          (flags.location.toString() === "all" ||
+            flags.location.toString().split(",").includes(instance.location));
+      })
+    };
 
-      for await (const account of configData?.accountCredentials || []) {
-        if (flags.account.toString() === "all") {
-          console.log(`${chalk.green("[INFO]")} Checking account: ${account.awsAccountName}`);
-        } else if (flags.account.toString().split(",").includes(account.awsAccountName)) {
-          console.log(`${chalk.green("[INFO]")} Checking account: ${account.awsAccountName}`);
-        } else {
-          console.log(`${chalk.yellow("[INFO]")} Skipping account: ${account.awsAccountName}`);
-          continue;
-        }
+    return instances;
+  }
 
-        const test: any = await checkRegions(account, regionFlag, flags, instancesData);
-        console.log(test);
-      }
+  instancesData.aws = [];
+  instancesData.self = [];
+
+  if (flags.account.toString() === "all" || flags.managed.toString().split(",").includes("aws")) {
+    console.log(`${chalk.green("[INFO]")} Gathering AWS managed instances`);
+
+    for await (const account of accountsToSearch) {
+      console.log(`${chalk.green("[INFO]")} Checking account: ${account.awsAccountName}`);
+
+      await checkRegions(account, flags, instancesData);
     }
   }
 
-  if (selfManagedInstances.length > 0) {
-    if (flags.managed.toString().split(",").includes("self") || flags.managed.toString().split(",").includes("all")) {
+  if (instancesData.self.length > 0) {
+    if (flags.managed.toString().split(",").includes("self") || flags.managed.toString() === "all") {
       console.log(`${chalk.green("[INFO]")} Gathering Self managed instances`);
     }
 
-    for (const instance of selfManagedInstances) {
+    for await (const instance of instancesData.self) {
       const instanceData = {
-        Name: instance.Name,
-        Address: instance.Address,
-        "Key Pair": instance["Key Pair"],
-        Username: instance.Username,
-        State: instance.State,
-        Accessible: instance.State,
-        Location: instance.Location,
-        Account: instance.Account
+        name: instance.name,
+        address: instance.address,
+        keyPair: instance.keyPair,
+        username: instance.username,
+        state: instance.state,
+        accessible: instance.accessible,
+        location: instance.location,
+        account: instance.account
       };
 
-      isPortReachable(22, { host: instance.Address as string, timeout: 1000 })
-        .then((accessible) => {
-          instanceData.Accessible = accessible;
-          return instanceData;
-        });
-      instancesData.selfManaged.push(instanceData);
+      instanceData.accessible = await isPortReachable(22, { host: instance.address as string, timeout: 1000 });
+
+      instancesData.self.push(instanceData);
     }
   }
 
-  try {
-    writeJsonFile(config.dataDir, "instances", JSON.stringify(instancesData));
-    console.log(`${chalk.green("[INFO]")} Instances gathered`);
-    return instancesData;
-  } catch (error) {
-    console.log(`${chalk.red("[ERROR]")} Unable to save instance data locally`);
-    return error;
+  const writeResponse: boolean = await writeJsonFile(config.dataDir, "instances", JSON.stringify(instancesData));
+
+  if (!writeResponse) {
+    return;
   }
+
+  return instancesData;
 }
 
-async function checkRegions(account: any, regionFlag: any, flags: any, instancesData: any): Promise<any> {
-  let params = {};
+async function checkRegions(account: IAccountCredentials, flags: any, instancesData: any): Promise<void> {
+  const locationsToSearch: Array<string> = flags.location.toString() === "all" ?
+    await getEnabledRegions(account) : flags.location.toString().split(",");
 
-  params = flags.state === "all" ? {
-    Filters: [{
-      Name: "instance-state-name",
-      Values: ["pending", "running", "stopping", "shutting-down", "stopped", "terminated"]
-    }]
-  } : {
-    Filters: [{
-      Name: "instance-state-name",
-      Values: flags.state
-    }]
-  };
-  for await (const region of regionFlag) {
-    console.log(`${chalk.green("[INFO]")} Checking region: ${region}`);
-    let roleCredentials;
-    if ("awsRole" in account) {
+  for await (const location of locationsToSearch) {
+    console.log(`${chalk.green("[INFO]")} Checking location: ${location}`);
+
+    let roleCredentials: AWS.STS.AssumeRoleResponse | undefined;
+
+    if (account.awsRole) {
       const stsParams: AWS.STS.AssumeRoleRequest = {
-        RoleArn: account.awsRole as string,
-        RoleSessionName: "aws-ec2-profiles"
+        RoleArn: account.awsRole,
+        RoleSessionName: "serverx"
       };
 
       const creds = new AWS.EnvironmentCredentials("AWS");
 
       const sts: AWS.STS = new AWS.STS({
         credentials: creds,
-        region: region
+        region: location
       });
-
-      roleCredentials = sts.assumeRole(stsParams).promise()
-        .then((data: AWS.STS.AssumeRoleResponse) => {
-          return data;
-        }).catch((error) => {
-          console.log(`${chalk.red("[ERROR]")} Unable to assume role: ${account.awsRole}`);
-          console.log(`${chalk.red("[REASON]")} ${error.message}`);
-        });
-
-      if (!roleCredentials) {
-        console.log(`${chalk.red("ERROR")} Unable to get role credentials for ${region}`);
-        continue;
-      }
-    }
-
-    const instances = await getInstanceData(region, account, roleCredentials, params, instancesData);
-    return instances;
-  }
-}
-
-async function getInstanceData(region: any, account: any, roleCredentials: any, params: any, instancesData: any) {
-  const ec2: AWS.EC2 = "awsRole" in account && roleCredentials ? new AWS.EC2({
-    accessKeyId: roleCredentials.Credentials?.AccessKeyId as string,
-    secretAccessKey: roleCredentials.Credentials?.SecretAccessKey as string,
-    sessionToken: roleCredentials.Credentials?.SessionToken as string,
-    region: region
-  }) : new AWS.EC2({
-    accessKeyId: account.awsAccessKey,
-    secretAccessKey: account.awsSecretAccessKey,
-    region: region
-  });
-
-  let isAccessible: string | undefined;
-  try {
-    const describeInstance: AWS.EC2.DescribeInstancesResult = await ec2.describeInstances(params).promise();
-    if (!describeInstance.Reservations || describeInstance.Reservations.length === 0) {
-      console.log(`${chalk.red("[ERROR]")} No reservations found`);
-      return;
-    }
-
-    for await (const instance of describeInstance.Reservations) {
-      // console.log(instance)
-      let name;
-      let username;
-
-      if (!instance.Instances || instance.Instances.length === 0) {
-        console.log(`${chalk.red("[ERROR]")} No instances found`);
-        return;
-      }
-
-      if (!instance.Instances[0].ImageId || instance.Instances[0].ImageId.length === 0) {
-        console.log(`${chalk.red("[ERROR]")} No image found`);
-        return;
-      }
-
-      const describeImage: AWS.EC2.DescribeImagesResult = await ec2.describeImages({ ImageIds: [instance.Instances[0].ImageId] }).promise();
-      if (!describeImage.Images || describeImage.Images.length === 0) {
-        username = "Unknown";
-      } else if (describeImage.Images[0].PlatformDetails?.includes("Linux")) {
-        if (describeImage.Images[0].ImageLocation?.includes("ubuntu")) {
-          username = "ubuntu";
-        } else if (describeImage.Images[0].ImageLocation?.includes("CentOS")) {
-          username = "centos";
-        } else {
-          username = "ec2-user";
-        }
-      } else if (describeImage.Images) {
-        username = "Administrator";
-      }
-
-      if (!instance.Instances[0].SecurityGroups || instance.Instances[0].SecurityGroups.length === 0) {
-        console.log(`${chalk.green("[INFO]")} No security groups.`);
-        return;
-      }
-
-      for await (const securityGroup of instance.Instances[0].SecurityGroups) {
-        isAccessible = await getSecurityGroups(securityGroup, ec2, instance);
-      }
-
-      if (!instance.Instances[0].Tags || instance.Instances[0].Tags.length === 0) {
-        console.log(`${chalk.green("[INFO]")} No tags.`);
-        return;
-      }
 
       try {
-        name = instance.Instances[0].Tags[0].Value;
-      } catch {
-        name = "N/A";
+        roleCredentials = await sts.assumeRole(stsParams).promise();
+      } catch (error) {
+        console.log(`${chalk.red("[ERROR]")} Unable to assume role: ${account.awsRole}`);
+        console.log(`${chalk.red("[REASON]")} ${error}`);
+        return;
       }
-
-      instancesData.awsManaged.push({
-        Name: name || "N/A",
-        Address: instance.Instances[0].PublicIpAddress || "N/A",
-        "Key Pair": instance.Instances[0].KeyName || "N/A",
-        Username: username || "N/A",
-        State: instance.Instances[0].State?.Name || "N/A",
-        Accessible: isAccessible,
-        Location: region,
-        Account: account.awsAccountName
-      });
     }
-  } catch (error) {
-    return error;
+
+    const awsInstances = await getInstances(location, account, roleCredentials, flags);
+    instancesData.aws = [...instancesData.aws, ...awsInstances];
   }
 
   return instancesData;
 }
 
-async function getSecurityGroups(securityGroup: any, ec2: AWS.EC2, instance: any): Promise<string | undefined> {
-  let isAccessible: boolean = false;
+async function getInstances(location: string, account: IAccountCredentials, roleCredentials: AWS.STS.AssumeRoleResponse | undefined, flags: FlagInput<any>): Promise<Array<IInstance>> {
+  const instancesToReturn: Array<IInstance> = [];
+
+  const describeInstancesParams: AWS.EC2.DescribeInstancesRequest = {
+    Filters: [
+      {
+        Name: "instance-state-name",
+        Values: flags.state.toString() === "all" ?
+          ["pending", "running", "stopping", "shutting-down", "stopped", "terminated"] : flags.state.toString().split(",")
+      }
+    ]
+  };
+
+  const ec2: AWS.EC2 = roleCredentials ?
+    new AWS.EC2({
+      accessKeyId: roleCredentials.Credentials?.AccessKeyId,
+      secretAccessKey: roleCredentials.Credentials?.SecretAccessKey,
+      sessionToken: roleCredentials.Credentials?.SessionToken,
+      region: location
+    }) : new AWS.EC2({
+      accessKeyId: account.awsAccessKey,
+      secretAccessKey: account.awsSecretAccessKey,
+      region: location
+    });
+
   try {
-    const describeSecurityGroup: AWS.EC2.DescribeSecurityGroupsResult = await ec2.describeSecurityGroups({ GroupIds: [securityGroup.GroupId] }).promise();
-    if (!describeSecurityGroup.SecurityGroups || describeSecurityGroup.SecurityGroups.length === 0) {
-      console.log(`${chalk.green("[INFO]")} No security groups found`);
-      return undefined;
+    const describeInstancesResult: AWS.EC2.DescribeInstancesResult = await ec2.describeInstances(describeInstancesParams).promise();
+    if (!describeInstancesResult.Reservations || describeInstancesResult.Reservations.length === 0) {
+      return [];
     }
 
-    if (!describeSecurityGroup.SecurityGroups[0].IpPermissions || describeSecurityGroup.SecurityGroups[0].IpPermissions.length === 0) {
-      console.log(`${chalk.green("[INFO]")} No IP permissions found`);
-      return;
-    }
+    for await (const reservation of describeInstancesResult.Reservations) {
+      let name: string = "Unknown";
+      let username: string = "Unknown";
+      let accessible: boolean = false;
 
-    for await (const ipPerms of describeSecurityGroup.SecurityGroups[0].IpPermissions) {
-      if (!ipPerms.IpProtocol || ipPerms.IpProtocol.length === 0) {
-        console.log(`${chalk.green("[INFO]")} No IP protocol found`);
-        return;
+      if (!reservation.Instances || reservation.Instances.length === 0) {
+        console.log(`${chalk.yellow("[WARN]")} No instances found in reservation: ${reservation.ReservationId}`);
+        continue;
       }
 
-      if (ipPerms.IpProtocol === "-1" || ipPerms.FromPort === 22 || ipPerms.ToPort === 22) {
-        let ipAddress: string;
+      for await (const instance of reservation.Instances) {
+        if (!instance.ImageId) {
+          console.log(`${chalk.yellow("[WARN]")} No image found on instance: ${instance.InstanceId}`);
+          continue;
+        }
+
+        const describeImagesParams: AWS.EC2.DescribeImagesRequest = {
+          ImageIds: [
+            instance.ImageId
+          ]
+        };
+
+        const describeImagesResult: AWS.EC2.DescribeImagesResult = await ec2.describeImages(describeImagesParams).promise();
+
+        if (describeImagesResult.Images && describeImagesResult.Images.length > 0) {
+          if (describeImagesResult.Images[0].PlatformDetails?.includes("Linux")) {
+            if (describeImagesResult.Images[0].ImageLocation?.includes("ubuntu")) {
+              username = "ubuntu";
+            } else if (describeImagesResult.Images[0].ImageLocation?.includes("CentOS")) {
+              username = "centos";
+            } else {
+              username = "ec2-user";
+            }
+          } else {
+            username = "Administrator";
+          }
+        }
+
+        if (!instance.SecurityGroups || instance.SecurityGroups.length === 0) {
+          continue;
+        }
+
+        for await (const securityGroup of instance.SecurityGroups) {
+          if (!securityGroup.GroupId) {
+            continue;
+          }
+
+          const instanceReachable: boolean = await getSecurityGroups(securityGroup.GroupId, ec2, instance);
+
+          if (instanceReachable) {
+            accessible = true;
+          }
+        }
+
+        if (!instance.Tags || instance.Tags.length === 0) {
+          continue;
+        }
+
         try {
-          const res = await axios.get("https://api.ipify.org");
-          ipAddress = res.data;
-        } catch (error: any) {
-          console.log(error);
-          return error;
+          name = instance.Tags[0].Value || "Unknown";
+        } catch {
+          name = "N/A";
         }
 
-        if (!ipPerms.IpRanges || ipPerms.IpRanges.length === 0) {
-          console.log(`${chalk.green("[INFO]")} No IP ranges found`);
-          return;
+        instancesToReturn.push({
+          name: name,
+          address: instance.PublicIpAddress || "Unknown",
+          keyPair: instance.KeyName || "Unknown",
+          username: username || "Unknown",
+          state: instance.State?.Name || "Unknown",
+          accessible: accessible,
+          location: location,
+          account: account.awsAccountName
+        });
+      }
+    }
+  } catch {
+    return [];
+  }
+
+  return instancesToReturn;
+}
+
+async function getSecurityGroups(securityGroupId: string, ec2: AWS.EC2, instance: AWS.EC2.Instance): Promise<boolean> {
+  let accessible: boolean = false;
+
+  const describeSecurityGroupsParams: AWS.EC2.DescribeSecurityGroupsRequest = {
+    GroupIds: [
+      securityGroupId
+    ]
+  };
+
+  try {
+    const describeSecurityGroupsResponse: AWS.EC2.DescribeSecurityGroupsResult = await ec2.describeSecurityGroups(describeSecurityGroupsParams).promise();
+
+    if (!describeSecurityGroupsResponse.SecurityGroups || describeSecurityGroupsResponse.SecurityGroups.length === 0) {
+      return false;
+    }
+
+    if (!describeSecurityGroupsResponse.SecurityGroups[0].IpPermissions || describeSecurityGroupsResponse.SecurityGroups[0].IpPermissions.length === 0) {
+      return false;
+    }
+
+    for await (const ipPermission of describeSecurityGroupsResponse.SecurityGroups[0].IpPermissions) {
+      if (!ipPermission.IpProtocol || ipPermission.IpProtocol.length === 0) {
+        return false;
+      }
+
+      if (ipPermission.IpProtocol === "-1" || (ipPermission.FromPort && ipPermission.FromPort <= 22) || (ipPermission.ToPort && ipPermission.ToPort <= 22)) {
+        if (!ipPermission.IpRanges || ipPermission.IpRanges.length === 0) {
+          return false;
         }
 
-        if (ipPerms.IpRanges[0].CidrIp === ipAddress + "/32" || ipPerms.IpRanges[0].CidrIp === "0.0.0.0/0") {
-          isAccessible = instance.Instances[0].State.Name === "running";
-        } else if (isAccessible !== true) {
-          isAccessible = false;
+        const currentIp: string | undefined = await getCurrentIp();
+
+        if (!currentIp) {
+          return false;
         }
-      } else if (isAccessible !== true) {
-        isAccessible = false;
+
+        for await (const ipRange of ipPermission.IpRanges) {
+          if (ipRange.CidrIp === currentIp + "/32" || ipRange.CidrIp === "0.0.0.0/0") {
+            accessible = instance.State?.Name === "running";
+          }
+        }
       }
     }
   } catch (error: any) {
     return error;
   }
 
-  return isAccessible.toString();
+  return accessible;
 }

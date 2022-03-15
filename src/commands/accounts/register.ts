@@ -3,13 +3,14 @@ import { readJsonFile, writeJsonFile } from "../../utils/utils";
 import listAccounts from "../../utils/list-accounts";
 const inquirer = require("inquirer");
 import { IConfigData, IAccountCredentials } from "../../utils/interfaces";
+import { FlagInput } from "@oclif/core/lib/interfaces";
 
-export default class AccountsList extends Command {
+export default class AccountsRegisterCommand extends Command {
   static description: string = `Register an account
-Register an AWS or GCP account with serverx
+Register an AWS or GCP account
 `;
 
-  static flags = {
+  static flags: FlagInput<any> = {
     detail: Flags.boolean({
       char: "d",
       description: "Display extra account details",
@@ -22,7 +23,7 @@ Register an AWS or GCP account with serverx
   ];
 
   async run(): Promise<void> {
-    const { flags }: any = await this.parse(AccountsList);
+    const { flags }: any = await this.parse(AccountsRegisterCommand);
 
     const configData: IConfigData = await readJsonFile(this.config.configDir, "config");
 

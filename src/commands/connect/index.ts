@@ -1,4 +1,5 @@
 import { Command, Flags } from "@oclif/core";
+import { FlagInput } from "@oclif/core/lib/interfaces";
 const fs = require("fs");
 const path = require("path");
 const inquirer = require("inquirer");
@@ -10,7 +11,7 @@ export default class ConnectCommand extends Command {
 Connect to an EC2 instance using either the instance index, name or address.\nAbility to override username and/or pem directory
 `;
 
-    static flags: any = {
+    static flags: FlagInput<any> = {
       index: Flags.integer({ char: "i", description: "Instance index" }),
       name: Flags.string({ char: "n", description: "Instance name" }),
       address: Flags.string({ char: "a", description: "Instance Address" }),

@@ -1,12 +1,13 @@
 import { Command, Flags } from "@oclif/core";
+import { FlagInput } from "@oclif/core/lib/interfaces";
 import listAccounts from "../../utils/list-accounts";
 
-export default class AccountsList extends Command {
+export default class AccountsListCommand extends Command {
   static description: string = `List accounts
 List registered AWS & GCP accounts
 `;
 
-  static flags = {
+  static flags: FlagInput<any> = {
     detail: Flags.boolean({
       char: "d",
       description: "Display extra account details",
@@ -19,7 +20,7 @@ List registered AWS & GCP accounts
   ];
 
   async run(): Promise<void> {
-    const { flags }: any = await this.parse(AccountsList);
+    const { flags }: any = await this.parse(AccountsListCommand);
 
     await listAccounts(this.config.configDir, flags.detail);
   }

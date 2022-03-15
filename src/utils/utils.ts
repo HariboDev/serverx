@@ -133,15 +133,20 @@ export async function getEnabledRegions(account: IAccountCredentials): Promise<A
   }
 }
 
-export async function checkIpChanged(dataData: IDataData): Promise<IIPChange | undefined> {
-  let newIp: string;
-
+export async function getCurrentIp(): Promise<string | undefined> {
   try {
-    const response = await axios.get("https://api.ipify.org");
-    newIp = response.data;
+    const ipResponse = await axios.get("https://api.ipify.org");
+    return ipResponse.data;
   } catch (error) {
-    console.log(`${chalk.red("[ERROR]")} Unable to check for IP change`);
+    console.log(`${chalk.red("[ERROR]")} Unable to get current IP`);
     console.log(`${chalk.red("[REASON]")} ${error}`);
+  }
+}
+
+export async function checkIpChanged(dataData: IDataData): Promise<IIPChange | undefined> {
+  const newIp: string | undefined = await getCurrentIp();
+
+  if (!newIp) {
     return;
   }
 

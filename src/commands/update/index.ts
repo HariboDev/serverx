@@ -3,13 +3,14 @@ import chalk from "chalk";
 import { IAccountCredentials, IConfigData, IDataData, IIPChange } from "../../utils/interfaces";
 import { getEnabledRegions, checkIpChanged, readJsonFile, writeJsonFile } from "../../utils/utils";
 import * as AWS from "aws-sdk";
+import { FlagInput } from "@oclif/core/lib/interfaces";
 
 export default class UpdateCommand extends Command {
   static description: string = `Update security groups with your new public IP
 Checks if your public IP has changed and updates relevant AWS security groups
 `;
 
-  static flags = {
+  static flags: FlagInput<any> = {
     region: Flags.string({
       char: "r",
       description: "Only update security groups in a specific region(s)",

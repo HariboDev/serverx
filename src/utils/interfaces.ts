@@ -20,16 +20,20 @@ export interface IDataData {
 }
 
 export interface IInstancesData {
-  awsManaged: Array<IAwsManagedInstance>;
-  selfManaged: Array<ISelfManagedInstance>;
+  aws: Array<IInstance>;
+  self: Array<IInstance>;
 }
 
-export interface IAwsManagedInstance {
+export interface IInstance {
   name: string;
-}
-
-export interface ISelfManagedInstance {
-  name: string;
+  address: string;
+  username: string;
+  hasKeyPair?: boolean;
+  keyPair: string;
+  state: string;
+  accessible: string | boolean;
+  location: string;
+  account: string;
 }
 
 export interface IAccountCredentials {
