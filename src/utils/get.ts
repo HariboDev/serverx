@@ -1,8 +1,6 @@
 import * as AWS from "aws-sdk";
 const fs = require("fs");
 const path = require("path");
-const mockedEnv = require("mocked-env");
-// import * as mockedEnv from "mocked-env";
 import axios from "axios";
 import chalk from "chalk";
 import { isPortReachable } from "./utils";
@@ -70,7 +68,7 @@ export default async function get(flags: FlagInput<any>, config: Config): Promis
         }
 
         const test: any = await checkRegions(account, regionFlag, flags, instancesData);
-        return test;
+        console.log(test);
       }
     }
   }
@@ -172,39 +170,56 @@ async function getInstanceData(region: any, account: any, roleCredentials: any, 
     region: region
   });
 
-  let isAccessible: string | undefined = "";
+  let isAccessible: string | undefined;
   try {
-    const describeInstance: any = await ec2.describeInstances(params).promise();
-    console.log(describeInstance);
+    const describeInstance: AWS.EC2.DescribeInstancesResult = await ec2.describeInstances(params).promise();
     if (!describeInstance.Reservations || describeInstance.Reservations.length === 0) {
-      console.log(`${chalk.red("[ERROR]")} No instances found in ${region}`);
+      console.log(`${chalk.red("[ERROR]")} No reservations found`);
       return;
     }
 
     for await (const instance of describeInstance.Reservations) {
+      // console.log(instance)
       let name;
       let username;
 
-      const describeImage: any = await ec2.describeImages({ ImageIds: [instance.Instances[0].ImageId] }).promise();
-      if (!describeImage || describeImage.Images?.length === 0) {
-        console.log(`${chalk.red("[ERROR]")} No image found for ${instance.Instances[0].ImageId}`);
+      if (!instance.Instances || instance.Instances.length === 0) {
+        console.log(`${chalk.red("[ERROR]")} No instances found`);
         return;
       }
 
-      if (describeImage.Images[0].PlatformDetails.includes("Linux")) {
-        if (describeImage.Images[0].ImageLocation.includes("ubuntu")) {
+      if (!instance.Instances[0].ImageId || instance.Instances[0].ImageId.length === 0) {
+        console.log(`${chalk.red("[ERROR]")} No image found`);
+        return;
+      }
+
+      const describeImage: AWS.EC2.DescribeImagesResult = await ec2.describeImages({ ImageIds: [instance.Instances[0].ImageId] }).promise();
+      if (!describeImage.Images || describeImage.Images.length === 0) {
+        username = "Unknown";
+      } else if (describeImage.Images[0].PlatformDetails?.includes("Linux")) {
+        if (describeImage.Images[0].ImageLocation?.includes("ubuntu")) {
           username = "ubuntu";
-        } else if (describeImage.Images[0].ImageLocation.includes("CentOS")) {
+        } else if (describeImage.Images[0].ImageLocation?.includes("CentOS")) {
           username = "centos";
         } else {
           username = "ec2-user";
         }
-      } else {
+      } else if (describeImage.Images) {
         username = "Administrator";
+      }
+
+      if (!instance.Instances[0].SecurityGroups || instance.Instances[0].SecurityGroups.length === 0) {
+        console.log(`${chalk.green("[INFO]")} No security groups.`);
+        return;
       }
 
       for await (const securityGroup of instance.Instances[0].SecurityGroups) {
         isAccessible = await getSecurityGroups(securityGroup, ec2, instance);
+      }
+
+      if (!instance.Instances[0].Tags || instance.Instances[0].Tags.length === 0) {
+        console.log(`${chalk.green("[INFO]")} No tags.`);
+        return;
       }
 
       try {
@@ -218,7 +233,7 @@ async function getInstanceData(region: any, account: any, roleCredentials: any, 
         Address: instance.Instances[0].PublicIpAddress || "N/A",
         "Key Pair": instance.Instances[0].KeyName || "N/A",
         Username: username || "N/A",
-        State: instance.Instances[0].State.Name || "N/A",
+        State: instance.Instances[0].State?.Name || "N/A",
         Accessible: isAccessible,
         Location: region,
         Account: account.awsAccountName
@@ -234,22 +249,36 @@ async function getInstanceData(region: any, account: any, roleCredentials: any, 
 async function getSecurityGroups(securityGroup: any, ec2: AWS.EC2, instance: any): Promise<string | undefined> {
   let isAccessible: boolean = false;
   try {
-    const describeSecurityGroup: any = await ec2.describeSecurityGroups({ GroupIds: [securityGroup.GroupId] }).promise();
-
-    if (!describeSecurityGroup.SecurityGroups[0].IpPermissions || describeSecurityGroup.SecurityGroups[0].IpPermissions.length === 0) {
-      console.log(`${chalk.red("[ERROR]")} No IP permissions found for ${securityGroup.GroupId}`);
+    const describeSecurityGroup: AWS.EC2.DescribeSecurityGroupsResult = await ec2.describeSecurityGroups({ GroupIds: [securityGroup.GroupId] }).promise();
+    if (!describeSecurityGroup.SecurityGroups || describeSecurityGroup.SecurityGroups.length === 0) {
+      console.log(`${chalk.green("[INFO]")} No security groups found`);
       return undefined;
     }
 
+    if (!describeSecurityGroup.SecurityGroups[0].IpPermissions || describeSecurityGroup.SecurityGroups[0].IpPermissions.length === 0) {
+      console.log(`${chalk.green("[INFO]")} No IP permissions found`);
+      return;
+    }
+
     for await (const ipPerms of describeSecurityGroup.SecurityGroups[0].IpPermissions) {
+      if (!ipPerms.IpProtocol || ipPerms.IpProtocol.length === 0) {
+        console.log(`${chalk.green("[INFO]")} No IP protocol found`);
+        return;
+      }
+
       if (ipPerms.IpProtocol === "-1" || ipPerms.FromPort === 22 || ipPerms.ToPort === 22) {
         let ipAddress: string;
-
         try {
           const res = await axios.get("https://api.ipify.org");
           ipAddress = res.data;
         } catch (error: any) {
+          console.log(error);
           return error;
+        }
+
+        if (!ipPerms.IpRanges || ipPerms.IpRanges.length === 0) {
+          console.log(`${chalk.green("[INFO]")} No IP ranges found`);
+          return;
         }
 
         if (ipPerms.IpRanges[0].CidrIp === ipAddress + "/32" || ipPerms.IpRanges[0].CidrIp === "0.0.0.0/0") {

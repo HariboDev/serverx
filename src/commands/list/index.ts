@@ -72,7 +72,6 @@ Gathers up to date EC2 instance data and displays summaries in a table
 
       try {
         instancesData = await get(flags, this.config);
-        console.log("This:", instancesData);
       } catch (error) {
         console.log(`${chalk.red("[REASON]")} ${error}`);
         return;
