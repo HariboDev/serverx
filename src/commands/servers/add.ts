@@ -1,7 +1,7 @@
 import { Command } from "@oclif/core";
 import inquirer from "inquirer";
 import { isPortReachable } from "../../utils/utils";
-import { IInstancesData } from "../../utils/interfaces";
+import { IInstance, IInstancesData } from "../../utils/interfaces";
 import { readJsonFile, writeJsonFile } from "../../utils/utils";
 
 export default class ServersAddCommand extends Command {
@@ -20,7 +20,7 @@ Add a self-managed server
       return;
     }
 
-    const newServer = await inquirer.prompt([
+    const newServer: IInstance = await inquirer.prompt([
       {
         type: "input",
         name: "name",
@@ -48,7 +48,8 @@ Add a self-managed server
       {
         type: "input",
         name: "location",
-        message: "Server Location"
+        message: "Server Location",
+        default: "Unknown"
       },
       {
         type: "input",
