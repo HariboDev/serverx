@@ -100,7 +100,7 @@ Gathers up AWS, GCP and self-managed servers and displays summaries in a table
             break;
           }
 
-          case "unknown": {
+          case "Unknown": {
             stateChalk = chalk.grey(`${instance.state}`);
             break;
           }

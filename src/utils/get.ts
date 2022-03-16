@@ -37,11 +37,8 @@ export default async function get(flags: FlagInput<any>, config: Config): Promis
             flags.state.toString().split(",").includes(instance.state));
       }),
       self: instancesData.self.filter((instance: IInstance) => {
-        return accountsToSearch.some((account: IAccountCredentials) => {
-          return account.awsAccountName === instance.account;
-        }) &&
-          (flags.managed.toString() === "all" ||
-            flags.managed.toString().split(",").includes("self")) &&
+        return (flags.managed.toString() === "all" ||
+          flags.managed.toString().split(",").includes("self")) &&
           (flags.location.toString() === "all" ||
             flags.location.toString().split(",").includes(instance.location));
       })
