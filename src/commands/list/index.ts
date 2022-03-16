@@ -120,9 +120,11 @@ Gathers up AWS, GCP and self-managed servers and displays summaries in a table
             chalk.grey(`${instance.address}`) :
             chalk.white(`${instance.address}`)
           ),
-          (instance.keyPair === "Unknown" ?
-            chalk.grey(`${instance.keyPair}`) :
-            chalk.white(`${instance.keyPair}`)
+          (instance.keyPair ?
+            chalk.white(`${instance.keyPair}`) :
+            (instance.keyPair === "Unknown" ?
+              chalk.grey(`${instance.keyPair}`) :
+              chalk.grey("None"))
           ),
           (instance.username === "Unknown" ?
             chalk.grey(`${instance.username}`) :

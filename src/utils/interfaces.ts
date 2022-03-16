@@ -29,7 +29,7 @@ export interface IInstance {
   address: string;
   username: string;
   hasKeyPair?: boolean;
-  keyPair: string;
+  keyPair?: string;
   state: string;
   accessible: string | boolean;
   location: string;

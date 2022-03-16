@@ -47,10 +47,8 @@ export default async function get(flags: FlagInput<any>, config: Config): Promis
     return instances;
   }
 
-  instancesData.aws = [];
-  instancesData.self = [];
-
-  if (flags.account.toString() === "all" || flags.managed.toString().split(",").includes("aws")) {
+  if (flags.managed.toString() === "all" || flags.managed.toString().split(",").includes("aws")) {
+    instancesData.aws = [];
     console.log(`${chalk.green("[INFO]")} Gathering AWS managed instances`);
 
     for await (const account of accountsToSearch) {
@@ -60,12 +58,13 @@ export default async function get(flags: FlagInput<any>, config: Config): Promis
     }
   }
 
-  if (instancesData.self.length > 0) {
-    if (flags.managed.toString().split(",").includes("self") || flags.managed.toString() === "all") {
-      console.log(`${chalk.green("[INFO]")} Gathering Self managed instances`);
-    }
+  if (flags.managed.toString() === "all" || flags.managed.toString().split(",").includes("self")) {
+    console.log(`${chalk.green("[INFO]")} Gathering self managed instances`);
 
-    for await (const instance of instancesData.self) {
+    const selfManagedInstances: Array<IInstance> = instancesData.self;
+    instancesData.self = [];
+
+    for await (const instance of selfManagedInstances) {
       const instanceData = {
         name: instance.name,
         address: instance.address,
@@ -77,8 +76,7 @@ export default async function get(flags: FlagInput<any>, config: Config): Promis
         account: instance.account
       };
 
-      instanceData.accessible = await isPortReachable(22, { host: instance.address as string, timeout: 1000 });
-
+      instanceData.accessible = await isPortReachable(22, { host: instance.address, timeout: 1000 });
       instancesData.self.push(instanceData);
     }
   }

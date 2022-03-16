@@ -75,10 +75,6 @@ export async function createDir(dir: string, dirType: string): Promise<boolean> 
 }
 
 export async function isPortReachable(port: number, { host, timeout = 1000 }: { host: string, timeout: number }): Promise<boolean> {
-  if (typeof host !== "string") {
-    throw new TypeError("Specify a `host`");
-  }
-
   const promise = new Promise(((resolve, reject) => {
     const socket = new net.Socket();
 
