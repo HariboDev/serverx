@@ -4,7 +4,7 @@ const path = require("path");
 import chalk from "chalk";
 const inquirer = require("inquirer");
 const axios = require("axios");
-import { IConfigData, IConfirmIpObject, IDataData, IInstancesData, IIpObject, IPemObject } from "../../utils/interfaces";
+import { IConfigData, IConfirmIpObject, IDataData, IInstancesData, IIpObject, IKeyObject } from "../../utils/interfaces";
 import { createDir, readJsonFile, writeJsonFile } from "../../utils/utils";
 
 export default class ConfigureCommand extends Command {
@@ -44,10 +44,10 @@ Add accounts and customise serverx
         return;
       }
 
-      configData.pemDir = await this.askForPemDirectory();
+      configData.keyDir = await this.askForKeyDirectory();
     } else {
       configData = {
-        pemDir: await this.askForPemDirectory(),
+        keyDir: await this.askForKeyDirectory(),
         accountCredentials: []
       };
     }
@@ -102,12 +102,12 @@ Add accounts and customise serverx
     }
   }
 
-  async askForPemDirectory(): Promise<string> {
-    const directoryObject: IPemObject = await inquirer.prompt([
+  async askForKeyDirectory(): Promise<string> {
+    const directoryObject: IKeyObject = await inquirer.prompt([
       {
         type: "input",
-        name: "pemDir",
-        message: "Default .pem directory",
+        name: "keyDir",
+        message: "Default .key directory",
         default: process.platform === "win32" ? "/ssh" : `${process.env.HOME}/.ssh`,
         validate: (value: string) => {
           if (process.platform !== "win32") {
@@ -119,7 +119,7 @@ Add accounts and customise serverx
       }
     ]);
 
-    return directoryObject.pemDir;
+    return directoryObject.keyDir;
   }
 
   async askForIp(publicIp: string): Promise<string> {

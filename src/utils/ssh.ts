@@ -5,7 +5,9 @@ const pipeStream = (stream: any) => {
   const { stdin, stdout, stderr } = process;
   const { isTTY } = stdout;
 
-  if (isTTY && stdin.setRawMode) stdin.setRawMode(true);
+  if (isTTY && stdin.setRawMode) {
+    stdin.setRawMode(true);
+  }
 
   stream.pipe(stdout);
   stream.stderr.pipe(stderr);
@@ -24,55 +26,48 @@ const pipeStream = (stream: any) => {
   }
 
   stream.on("close", () => {
-    if (isTTY) process.stdout.removeListener("resize", onResize);
+    if (isTTY) {
+      process.stdout.removeListener("resize", onResize);
+    }
+
     stream.unpipe();
     stream.stderr.unpipe();
     stdin.unpipe();
-    if (stdin.setRawMode) stdin.setRawMode(false);
+
+    if (stdin.setRawMode) {
+      stdin.setRawMode(false);
+    }
+
     stdin.unref();
   });
 };
 
-export default async function sshUtil(host: string, username: string, privateKey: string | undefined, password: string): Promise<void> {
+export default async function sshUtil(host: string, username: string, privateKey: string | undefined, password: string, port: number): Promise<void> {
   const ssh = new NodeSSH();
 
+  const connectOptions: any = {
+    host: host,
+    port: port,
+    username: username
+  };
+
   if (password) {
-    try {
-      await ssh.connect({
-        host: host,
-        port: 22,
-        username: username,
-        password: password
-      });
-    } catch (error: any) {
-      if (error.message === "All configured authentication methods failed") {
-        console.log(`${chalk.red("[ERROR]")} Invalid username or password`);
-        return;
-      }
-
-      if (error.message === "Timed out while waiting for handshake") {
-        console.log(`${chalk.red("[ERROR]")} Timed out while waiting for handshake`);
-        return;
-      }
-    }
+    connectOptions.password = password;
   } else {
-    try {
-      await ssh.connect({
-        host: host,
-        port: 22,
-        username: username,
-        privateKey: privateKey
-      });
-    } catch (error: any) {
-      if (error.message === "All configured authentication methods failed") {
-        console.log(`${chalk.red("[ERROR]")} Invalid username or private key`);
-        return;
-      }
+    connectOptions.privateKey = privateKey;
+  }
 
-      if (error.message === "Timed out while waiting for handshake") {
-        console.log(`${chalk.red("[ERROR]")} Timed out while waiting for handshake`);
-        return;
-      }
+  try {
+    await ssh.connect(connectOptions);
+  } catch (error: any) {
+    if (error.message === "All configured authentication methods failed") {
+      console.log(`${chalk.red("[ERROR]")} Invalid username or ${password ? "password" : "private key"}`);
+      return;
+    }
+
+    if (error.message === "Timed out while waiting for handshake") {
+      console.log(`${chalk.red("[ERROR]")} Timed out while waiting for handshake`);
+      return;
     }
   }
 

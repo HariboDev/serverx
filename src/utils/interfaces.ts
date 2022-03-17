@@ -1,10 +1,10 @@
 export interface IConfigData {
-  pemDir: string;
+  keyDir: string;
   accountCredentials: Array<IAccountCredentials>;
 }
 
-export interface IPemObject {
-  pemDir: string;
+export interface IKeyObject {
+  keyDir: string;
 }
 
 export interface IConfirmIpObject {

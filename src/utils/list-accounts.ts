@@ -3,7 +3,7 @@ import chalk from "chalk";
 import { readJsonFile } from "./utils";
 
 interface IConfigData {
-  pemDir?: string;
+  keyDir?: string;
   accountCredentials?: Array<IAccountCredentials>;
 }
 

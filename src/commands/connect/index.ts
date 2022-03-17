@@ -4,134 +4,173 @@ const fs = require("fs");
 const path = require("path");
 const inquirer = require("inquirer");
 import chalk from "chalk";
+import { IConfigData, IInstance, IInstancesData } from "../../utils/interfaces";
 import sshUtil from "../../utils/ssh";
+import { isPortReachable, readJsonFile } from "../../utils/utils";
 
 export default class ConnectCommand extends Command {
-    static description: string = `Connect using SSH to an EC2 instance
-Connect to an EC2 instance using either the instance index, name or address.\nAbility to override username and/or pem directory
+  static description: string = `Connect to a server with SSH
+Connect to a server with SSH using either the instance name or address.\nAbility to override username, key directory, key file and port.
 `;
 
-    static flags: FlagInput<any> = {
-      index: Flags.integer({ char: "i", description: "Instance index" }),
-      name: Flags.string({ char: "n", description: "Instance name" }),
-      address: Flags.string({ char: "a", description: "Instance Address" }),
-      username: Flags.string({ char: "u", description: "Override connection username" }),
-      directory: Flags.string({ char: "d", description: "Override pem file directory" }),
-      key: Flags.string({ char: "k", description: "Override pem file name" }),
-      password: Flags.boolean({ char: "p", description: "Ask for password" })
-    };
+  static flags: FlagInput<any> = {
+    name: Flags.string({ char: "n", description: "Instance Name" }),
+    address: Flags.string({ char: "a", description: "Instance Address" }),
+    username: Flags.string({ char: "u", description: "Override connection username" }),
+    directory: Flags.string({ char: "d", description: "Override key file directory" }),
+    key: Flags.string({ char: "k", description: "Override key file name" }),
+    port: Flags.string({ char: "p", description: "Override port", default: "22" }),
+    password: Flags.boolean({ char: "p", description: "Ask for password" })
+  };
 
-    async run(): Promise<void>  {
-      const { flags }: any = await this.parse(ConnectCommand);
+  async run(): Promise<void> {
+    const { flags }: any = await this.parse(ConnectCommand);
 
-      const instancesFile = path.join(this.config.dataDir, "instances.json");
-      const instancesData = JSON.parse(fs.readFileSync(instancesFile));
+    const configData: IConfigData = await readJsonFile(this.config.configDir, "config");
 
-      const configFile = path.join(this.config.configDir, "config.json");
-      const configData = JSON.parse(fs.readFileSync(configFile));
-      let instanceToConnect;
+    if (!configData) {
+      return;
+    }
 
-      if (flags.index || flags.index === 0) {
-        instanceToConnect = flags.index <= instancesData.awsManaged.length - 1 ? instancesData.awsManaged[flags.index] : instancesData.selfManaged[flags.index - instancesData.awsManaged.length];
-      } else if (flags.name) {
-        let instanceIndex = -1;
-        for (const instance of instancesData.awsManaged) {
-          if (instance.Name === flags.name) {
-            instanceIndex = instancesData.awsManaged.indexOf(instance);
-          }
-        }
+    const instancesData: IInstancesData = await readJsonFile(this.config.dataDir, "instances");
 
-        if (instanceIndex === -1) {
-          for (const instance of instancesData.selfManaged) {
-            if (instance.Name === flags.name) {
-              instanceIndex = instancesData.selfManaged.indexOf(instance);
-            }
-          }
+    if (!instancesData) {
+      return;
+    }
 
-          instanceToConnect = instancesData.selfManaged[instanceIndex];
-        } else {
-          instanceToConnect = instancesData.awsManaged[instanceIndex];
-        }
-      } else if (flags.address) {
-        let instanceIndex = -1;
-        for (const instance of instancesData.awsManaged) {
-          if (instance.Address === flags.address) {
-            instanceIndex = instancesData.awsManaged.indexOf(instance);
-          }
-        }
+    if (!flags.name && !flags.address) {
+      console.log(`${chalk.red("[ERROR]")} Please provide either an instance name or address.`);
+      return;
+    }
 
-        if (instanceIndex === -1) {
-          for (const instance of instancesData.selfManaged) {
-            if (instance.Address === flags.address) {
-              instanceIndex = instancesData.selfManaged.indexOf(instance);
-            }
-          }
+    let instanceToConnect: IInstance | undefined;
 
-          instanceToConnect = instancesData.selfManaged[instanceIndex];
-        } else {
-          instanceToConnect = instancesData.awsManaged[instanceIndex];
+    if (flags.name) {
+      for await (const instance of instancesData.aws) {
+        if (instance.name === flags.name) {
+          instanceToConnect = instance;
+          break;
         }
       }
 
-      if (instanceToConnect === undefined) {
-        console.log(`${chalk.red("[ERROR]")} Invalid selection`);
-      } else if (instanceToConnect.Accessible === false) {
-        console.log(`${chalk.red("[ERROR]")} Instance is not accessible`);
-      } else {
-        const username = flags.username ? flags.username : instanceToConnect.Username;
-        let password: string = "";
-        let key: string | undefined;
-        if (flags.password || instanceToConnect["Key Pair"] === "N/A") {
-          password = await inquirer.prompt([
-            {
-              type: "password",
-              name: "password",
-              message: `Enter password for ${username}@${instanceToConnect.Address}:22`,
-              validate: (input: string) => {
-                if (input.length === 0) {
-                  return "Password cannot be empty";
-                }
-
-                return true;
-              }
-            }
-          ]);
-        } else {
-          const directory = flags.directory ? flags.directory : configData.pemDir;
-
-          key = await (flags.key ? this.resolveHome(directory + "/" + flags.key) : this.resolveHome(directory + "/" + instanceToConnect["Key Pair"]));
+      if (!instanceToConnect) {
+        for (const instance of instancesData.self) {
+          if (instance.name === flags.name) {
+            instanceToConnect = instance;
+            break;
+          }
         }
+      }
 
-        console.log("");
-        console.log(`${chalk.green("[INFO]")} Connecting to "${instanceToConnect.Name}" as "${username}" at "${instanceToConnect.Address}:22"`);
-        console.log(`${chalk.green("[INFO]")} If these details are incorrect, execute "serverx list" to update instance details and try again`);
-        console.log(`${chalk.green("[INFO]")} Attempting to connect...`);
-        console.log("");
+      if (!instanceToConnect) {
+        console.log(`${chalk.red("[ERROR]")} Could not find instance with name: ${flags.name}`);
+        return;
+      }
+    } else if (flags.address) {
+      for (const instance of instancesData.aws) {
+        if (instance.address === flags.address) {
+          instanceToConnect = instance;
+        }
+      }
 
-        await sshUtil(instanceToConnect.Address, username, key, password);
+      if (!instanceToConnect) {
+        for (const instance of instancesData.self) {
+          if (instance.address === flags.address) {
+            instanceToConnect = instance;
+          }
+        }
+      }
+
+      if (!instanceToConnect) {
+        console.log(`${chalk.red("[ERROR]")} Could not find instance with address: ${flags.address}`);
+        return;
       }
     }
 
-    async resolveHome(filepath: string): Promise<string> {
-      const validFileExtensions = [".pem", ".ppk"];
-
-      if (filepath[0] === "~") {
-        filepath = path.join(process.env.HOME, filepath.slice(1));
-      }
-
-      if (validFileExtensions.includes(filepath.slice(-4))) {
-        if (fs.existsSync(filepath)) {
-          return filepath;
-        }
-      } else {
-        for (const extension of validFileExtensions) {
-          if (fs.existsSync(filepath + extension)) {
-            return filepath + extension;
-          }
-        }
-      }
-
-      console.log(`${chalk.red("[ERROR]")} Could not find key file: ${filepath}`);
-      process.exit();
+    if (!instanceToConnect) {
+      console.log(`${chalk.red("[ERROR]")} Provide either an instance name or address`);
+      return;
     }
+
+    if (instanceToConnect.accessible === false || flags.port !== "22") {
+      console.log(`${chalk.red("[ERROR]")} Checking instance reachability`);
+
+      try {
+        if (Number.isNaN(flags.port) || !Number.isInteger(Number(flags.port))) {
+          console.log(`${chalk.red("[ERROR]")} Invalid port number`);
+          return;
+        }
+      } catch {
+        console.log(`${chalk.red("[ERROR]")} Invalid port number`);
+        return;
+      }
+
+      const accessible: boolean = await isPortReachable(flags.port, { host: instanceToConnect.address, timeout: 1000 });
+
+      if (accessible) {
+        console.log(`${chalk.green("[INFO]")} Instance is accessible`);
+      } else {
+        console.log(`${chalk.red("[ERROR]")} Could not connect to instance`);
+      }
+    }
+
+    await this.connect(instanceToConnect, flags, configData);
+  }
+
+  async connect(instanceToConnect: IInstance, flags: FlagInput<any>, configData: IConfigData): Promise<void> {
+    const username = flags.username || instanceToConnect.username;
+    const password = await inquirer.prompt([
+      {
+        type: "password",
+        name: "password",
+        message: `Enter password for ${username}@${instanceToConnect.address}:${flags.port}`,
+        when: flags.password || !instanceToConnect.keyPair,
+        validate: (input: string) => {
+          if (input === "") {
+            return "Password cannot be empty";
+          }
+
+          return true;
+        }
+      }
+    ]);
+
+    const directory: string = flags.directory ? flags.directory.toString() : configData.keyDir;
+
+    const key: string | undefined = flags.key ? await this.resolveHome(directory + "/" + flags.key.toString()) : await this.resolveHome(directory + "/" + (instanceToConnect.keyPair || ""));
+
+    if (!key) {
+      return;
+    }
+
+    console.log("");
+    console.log(`${chalk.green("[INFO]")} Connecting to "${instanceToConnect.name}" as "${username}" at "${instanceToConnect.address}:${flags.port}"`);
+    console.log(`${chalk.green("[INFO]")} If these details are incorrect, execute "serverx list" to update instance details and try again`);
+    console.log(`${chalk.green("[INFO]")} Attempting to connect...`);
+    console.log("");
+
+    await sshUtil(instanceToConnect.address, username.toString(), key, password.password, Number(flags.port));
+  }
+
+  async resolveHome(filepath: string): Promise<string | undefined> {
+    const validFileExtensions = [".pem", ".ppk", ""];
+
+    if (filepath[0] === "~") {
+      filepath = path.join(process.env.HOME, filepath.slice(1));
+    }
+
+    if (validFileExtensions.includes(filepath.slice(-4))) {
+      if (fs.existsSync(filepath)) {
+        return filepath;
+      }
+    } else {
+      for (const extension of validFileExtensions) {
+        if (fs.existsSync(filepath + extension)) {
+          return filepath + extension;
+        }
+      }
+    }
+
+    console.log(`${chalk.red("[ERROR]")} Could not find key file: ${filepath}`);
+  }
 }

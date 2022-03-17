@@ -33,6 +33,8 @@ USAGE
 * [`serverx accounts list`](#serverx-accounts-list)
 * [`serverx accounts modify`](#serverx-accounts-modify)
 * [`serverx accounts register`](#serverx-accounts-register)
+* [`serverx autocomplete [SHELL]`](#serverx-autocomplete-shell)
+* [`serverx commands`](#serverx-commands)
 * [`serverx configure`](#serverx-configure)
 * [`serverx connect`](#serverx-connect)
 * [`serverx help [COMMAND]`](#serverx-help-command)
@@ -156,6 +158,66 @@ EXAMPLES
   $ serverx accounts register
 ```
 
+## `serverx autocomplete [SHELL]`
+
+display autocomplete installation instructions
+
+```
+USAGE
+  $ serverx autocomplete [SHELL] [-r]
+
+ARGUMENTS
+  SHELL  shell type
+
+FLAGS
+  -r, --refresh-cache  Refresh cache (ignores displaying instructions)
+
+DESCRIPTION
+  display autocomplete installation instructions
+
+EXAMPLES
+  $ serverx autocomplete
+
+  $ serverx autocomplete bash
+
+  $ serverx autocomplete zsh
+
+  $ serverx autocomplete --refresh-cache
+```
+
+_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v1.2.0/src/commands/autocomplete/index.ts)_
+
+## `serverx commands`
+
+list all the commands
+
+```
+USAGE
+  $ serverx commands [--json] [-h] [--hidden] [--columns <value> | -x] [--sort <value>] [--filter <value>]
+    [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
+
+FLAGS
+  -h, --help         Show CLI help.
+  -x, --extended     show extra columns
+  --columns=<value>  only show provided columns (comma-separated)
+  --csv              output is csv format [alias: --output=csv]
+  --filter=<value>   filter property by partial string matching, ex: name=foo
+  --hidden           show hidden commands
+  --no-header        hide table header from output
+  --no-truncate      do not truncate output to fit screen
+  --output=<option>  output in a more machine friendly format
+                     <options: csv|json|yaml>
+  --sort=<value>     property to sort by (prepend '-' for descending)
+
+GLOBAL FLAGS
+  --json  Format output as json.
+
+DESCRIPTION
+  list all the commands
+```
+
+_See code: [@oclif/plugin-commands](https://github.com/oclif/plugin-commands/blob/v2.1.0/src/commands/commands.ts)_
+
 ## `serverx configure`
 
 Configure serverx
@@ -177,27 +239,27 @@ _See code: [dist/commands/configure/index.ts](https://github.com/HariboDev/serve
 
 ## `serverx connect`
 
-Connect using SSH to an EC2 instance
+Connect to a server with SSH
 
 ```
 USAGE
-  $ serverx connect [-i <value>] [-n <value>] [-a <value>] [-u <value>] [-d <value>] [-k <value>] [-p]
+  $ serverx connect [-n <value>] [-a <value>] [-u <value>] [-d <value>] [-k <value>] [-p <value>] [-p]
 
 FLAGS
   -a, --address=<value>    Instance Address
-  -d, --directory=<value>  Override pem file directory
-  -i, --index=<value>      Instance index
-  -k, --key=<value>        Override pem file name
-  -n, --name=<value>       Instance name
+  -d, --directory=<value>  Override key file directory
+  -k, --key=<value>        Override key file name
+  -n, --name=<value>       Instance Name
   -p, --password           Ask for password
+  -p, --port=<value>       [default: 22] Override port
   -u, --username=<value>   Override connection username
 
 DESCRIPTION
-  Connect using SSH to an EC2 instance
+  Connect to a server with SSH
 
-  Connect to an EC2 instance using either the instance index, name or address.
+  Connect to a server with SSH using either the instance name or address.
 
-  Ability to override username and/or pem directory
+  Ability to override username, key directory, key file and port.
 ```
 
 _See code: [dist/commands/connect/index.ts](https://github.com/HariboDev/serverx/blob/v0.0.0/dist/commands/connect/index.ts)_
@@ -228,14 +290,19 @@ Display AWS, GCP and self-managed servers
 
 ```
 USAGE
-  $ serverx list [-l <value>] [-s pending|running|stopping|stopped|shutting-down|terminated] [-a <value>]
-    [-m aws|self] [--no-refresh]
+  $ serverx list [-r
+    us-east-1|us-east-2|us-west-1|us-west-2|ap-south-1|ap-northeast-1|ap-northeast-2|ap-southeast-1|ap-southeast-2|ca-ce
+    ntral-1|eu-central-1|eu-west-1|eu-west-2|eu-west-3|eu-north-1|sa-east-1] [-s
+    pending|running|stopping|stopped|shutting-down|terminated] [-a <value>] [-m aws|self] [--no-refresh]
 
 FLAGS
   -a, --account=<value>...   [default: all] Only get servers from a specific account(s)
-  -l, --location=<value>...  [default: all] Only get servers in a specific location(s)
   -m, --managed=<option>...  [default: all] Only get servers under a specific management(s)
                              <options: aws|self>
+  -r, --region=<option>...   [default: all] Only get servers in a specific region(s)
+                             <options: us-east-1|us-east-2|us-west-1|us-west-2|ap-south-1|ap-northeast-1|ap-northeast-2|
+                             ap-southeast-1|ap-southeast-2|ca-central-1|eu-central-1|eu-west-1|eu-west-2|eu-west-3|eu-no
+                             rth-1|sa-east-1>
   -s, --state=<option>...    [default: all] Only get servers of in a specific state(s)
                              <options: pending|running|stopping|stopped|shutting-down|terminated>
   --no-refresh               Don't refresh the cache of known servers
