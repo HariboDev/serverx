@@ -31,16 +31,16 @@ export default async function get(flags: FlagInput<any>, config: Config): Promis
         }) &&
           (flags.managed.toString() === "all" ||
             flags.managed.toString().split(",").includes("aws")) &&
-          (flags.location.toString() === "all" ||
-            flags.location.toString().split(",").includes(instance.location)) &&
+          (flags.region.toString() === "all" ||
+            flags.region.toString().split(",").includes(instance.location)) &&
           (flags.state.toString() === "all" ||
             flags.state.toString().split(",").includes(instance.state));
       }),
       self: instancesData.self.filter((instance: IInstance) => {
         return (flags.managed.toString() === "all" ||
           flags.managed.toString().split(",").includes("self")) &&
-          (flags.location.toString() === "all" ||
-            flags.location.toString().split(",").includes(instance.location));
+          (flags.region.toString() === "all" ||
+            flags.region.toString().split(",").includes(instance.location));
       })
     };
 
@@ -91,11 +91,11 @@ export default async function get(flags: FlagInput<any>, config: Config): Promis
 }
 
 async function checkRegions(account: IAccountCredentials, flags: any, instancesData: any): Promise<void> {
-  const locationsToSearch: Array<string> = flags.location.toString() === "all" ?
-    await getEnabledRegions(account) : flags.location.toString().split(",");
+  const regionsToSearch: Array<string> = flags.region.toString() === "all" ?
+    await getEnabledRegions(account) : flags.region.toString().split(",");
 
-  for await (const location of locationsToSearch) {
-    console.log(`${chalk.green("[INFO]")} Checking location: ${location}`);
+  for await (const region of regionsToSearch) {
+    console.log(`${chalk.green("[INFO]")} Checking region: ${region}`);
 
     let roleCredentials: AWS.STS.AssumeRoleResponse | undefined;
 
@@ -109,7 +109,7 @@ async function checkRegions(account: IAccountCredentials, flags: any, instancesD
 
       const sts: AWS.STS = new AWS.STS({
         credentials: creds,
-        region: location
+        region: region
       });
 
       try {
@@ -121,14 +121,14 @@ async function checkRegions(account: IAccountCredentials, flags: any, instancesD
       }
     }
 
-    const awsInstances = await getInstances(location, account, roleCredentials, flags);
+    const awsInstances = await getInstances(region, account, roleCredentials, flags);
     instancesData.aws = [...instancesData.aws, ...awsInstances];
   }
 
   return instancesData;
 }
 
-async function getInstances(location: string, account: IAccountCredentials, roleCredentials: AWS.STS.AssumeRoleResponse | undefined, flags: FlagInput<any>): Promise<Array<IInstance>> {
+async function getInstances(region: string, account: IAccountCredentials, roleCredentials: AWS.STS.AssumeRoleResponse | undefined, flags: FlagInput<any>): Promise<Array<IInstance>> {
   const instancesToReturn: Array<IInstance> = [];
 
   const describeInstancesParams: AWS.EC2.DescribeInstancesRequest = {
@@ -146,11 +146,11 @@ async function getInstances(location: string, account: IAccountCredentials, role
       accessKeyId: roleCredentials.Credentials?.AccessKeyId,
       secretAccessKey: roleCredentials.Credentials?.SecretAccessKey,
       sessionToken: roleCredentials.Credentials?.SessionToken,
-      region: location
+      region: region
     }) : new AWS.EC2({
       accessKeyId: account.awsAccessKey,
       secretAccessKey: account.awsSecretAccessKey,
-      region: location
+      region: region
     });
 
   try {
@@ -230,7 +230,7 @@ async function getInstances(location: string, account: IAccountCredentials, role
           username: username || "Unknown",
           state: instance.State?.Name || "Unknown",
           accessible: accessible,
-          location: location,
+          location: region,
           account: account.awsAccountName
         });
       }

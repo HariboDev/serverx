@@ -11,11 +11,29 @@ Gathers up AWS, GCP and self-managed servers and displays summaries in a table
 `;
 
   static flags: FlagInput<any> = {
-    location: Flags.string({
-      char: "l",
-      description: "Only get servers in a specific location(s)",
+    region: Flags.string({
+      char: "r",
+      description: "Only get servers in a specific region(s)",
       multiple: true,
-      default: "all"
+      default: "all",
+      options: [
+        "us-east-1",
+        "us-east-2",
+        "us-west-1",
+        "us-west-2",
+        "ap-south-1",
+        "ap-northeast-1",
+        "ap-northeast-2",
+        "ap-southeast-1",
+        "ap-southeast-2",
+        "ca-central-1",
+        "eu-central-1",
+        "eu-west-1",
+        "eu-west-2",
+        "eu-west-3",
+        "eu-north-1",
+        "sa-east-1"
+      ]
     }),
     state: Flags.string({
       char: "s",
@@ -120,10 +138,10 @@ Gathers up AWS, GCP and self-managed servers and displays summaries in a table
             chalk.grey(`${instance.address}`) :
             chalk.white(`${instance.address}`)
           ),
-          (instance.keyPair ?
-            chalk.white(`${instance.keyPair}`) :
-            (instance.keyPair === "Unknown" ?
-              chalk.grey(`${instance.keyPair}`) :
+          (instance.keyPair === "Unknown" ?
+            chalk.grey("Unknown") :
+            (instance.keyPair ?
+              chalk.white(`${instance.keyPair}`) :
               chalk.grey("None"))
           ),
           (instance.username === "Unknown" ?
