@@ -1,11 +1,11 @@
 import * as AWS from "aws-sdk";
 import chalk from "chalk";
-import { isPortReachable, readJsonFile, writeJsonFile, getEnabledRegions, getCurrentIp } from "./utils";
+import { readJsonFile, writeJsonFile, getEnabledRegions, getCurrentIp } from "./utils";
 import { IConfigData, IInstancesData, IAwsAccountCredentials, IInstance } from "./interfaces";
 import { FlagInput } from "@oclif/core/lib/interfaces";
 import { Config } from "@oclif/core";
 
-export default async function get(flags: FlagInput<any>, config: Config): Promise<IInstancesData | undefined> {
+export default async function getAWS(flags: FlagInput<any>, config: Config): Promise<IInstancesData | undefined> {
   const configData: IConfigData = await readJsonFile(config.configDir, "config");
 
   if (!configData) {
@@ -29,57 +29,25 @@ export default async function get(flags: FlagInput<any>, config: Config): Promis
         return accountsToSearch.some((account: IAwsAccountCredentials) => {
           return account.awsAccountName === instance.account;
         }) &&
-          (flags.managed.toString() === "all" ||
-            flags.managed.toString().split(",").includes("aws")) &&
           (flags.region.toString() === "all" ||
-            flags.region.toString().split(",").includes(instance.location)) &&
+            flags.region.toString().includes(instance.location)) &&
           (flags.state.toString() === "all" ||
             flags.state.toString().split(",").includes(instance.state));
       }),
       gcp: [],
-      self: instancesData.self.filter((instance: IInstance) => {
-        return (flags.managed.toString() === "all" ||
-          flags.managed.toString().split(",").includes("self")) &&
-          (flags.region.toString() === "all" ||
-            flags.region.toString().split(",").includes(instance.location));
-      })
+      self: []
     };
 
     return instances;
   }
 
-  if (flags.managed.toString() === "all" || flags.managed.toString().split(",").includes("aws")) {
-    instancesData.aws = [];
-    console.log(`${chalk.green("[INFO]")} Gathering AWS managed instances`);
+  instancesData.aws = [];
+  console.log(`${chalk.green("[INFO]")} Gathering AWS managed instances`);
 
-    for await (const account of accountsToSearch) {
-      console.log(`${chalk.green("[INFO]")} Checking account: ${account.awsAccountName}`);
+  for await (const account of accountsToSearch) {
+    console.log(`${chalk.green("[INFO]")} Checking account: ${account.awsAccountName}`);
 
-      await checkRegions(account, flags, instancesData);
-    }
-  }
-
-  if (flags.managed.toString() === "all" || flags.managed.toString().split(",").includes("self")) {
-    console.log(`${chalk.green("[INFO]")} Gathering self managed instances`);
-
-    const selfManagedInstances: Array<IInstance> = instancesData.self;
-    instancesData.self = [];
-
-    for await (const instance of selfManagedInstances) {
-      const instanceData = {
-        name: instance.name,
-        address: instance.address,
-        keyPair: instance.keyPair,
-        username: instance.username,
-        state: instance.state,
-        accessible: instance.accessible,
-        location: instance.location,
-        account: instance.account
-      };
-
-      instanceData.accessible = await isPortReachable(22, { host: instance.address, timeout: 1000 });
-      instancesData.self.push(instanceData);
-    }
+    await checkRegions(account, flags, instancesData);
   }
 
   const writeResponse: boolean = await writeJsonFile(config.dataDir, "instances", JSON.stringify(instancesData));

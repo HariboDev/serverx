@@ -53,6 +53,18 @@ Register a GCP account
       },
       {
         type: "input",
+        name: "gcpProjectId",
+        message: "Project ID",
+        validate: (input: string) => {
+          if (input === "") {
+            return "GCP project ID name is required";
+          }
+
+          return true;
+        }
+      },
+      {
+        type: "input",
         name: "credentialsFile",
         message: "Credentials File Location",
         validate: (input: string) => {

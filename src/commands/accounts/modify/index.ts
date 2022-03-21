@@ -2,7 +2,7 @@ import { Command, Help } from "@oclif/core";
 
 export default class AccountsModifyCommand extends Command {
   static description: string = `Modify a registered account
-Modify a registered AWS, Azure or GCP account
+Modify a registered AWS or GCP account
 `;
 
   static args = [

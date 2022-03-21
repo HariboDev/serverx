@@ -1,9 +1,9 @@
 import { Command } from "@oclif/core";
 import chalk from "chalk";
-import listAwsAccounts from "../../../utils/list-accounts/aws";
 import { readJsonFile, writeJsonFile } from "../../../utils/utils";
 const inquirer = require("inquirer");
 import { IConfigData, IGcpAccountCredentials } from "../../../utils/interfaces";
+import listGcpAccounts from "../../../utils/list-accounts/gcp";
 
 export default class AccountsDeregisterCommand extends Command {
   static description: string = `Deregister a GCP account
@@ -15,11 +15,9 @@ Deregister a GCP account
   ];
 
   async run(): Promise<void> {
-    const { flags }: any = await this.parse(AccountsDeregisterCommand);
-
     const configData: IConfigData = await readJsonFile(this.config.configDir, "config");
 
-    if (!configData || !configData.awsAccounts) {
+    if (!configData || !configData.gcpAccounts) {
       return;
     }
 
@@ -49,7 +47,7 @@ Deregister a GCP account
 
     const accountIndex: number = configData.gcpAccounts.findIndex((account: IGcpAccountCredentials) => account.gcpAccountName === accountName.accountName);
 
-    configData.awsAccounts.splice(accountIndex, 1);
+    configData.gcpAccounts.splice(accountIndex, 1);
 
     const writeSuccess: boolean = await writeJsonFile(this.config.configDir, "config", JSON.stringify(configData));
 
@@ -57,6 +55,6 @@ Deregister a GCP account
       return;
     }
 
-    await listAwsAccounts(this.config.configDir, flags.detail);
+    await listGcpAccounts(this.config.configDir);
   }
 }

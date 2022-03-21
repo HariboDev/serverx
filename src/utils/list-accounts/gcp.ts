@@ -13,6 +13,7 @@ export default async function listGcpAccounts(configDir: string): Promise<void> 
   const table: Table.Table = new Table({
     head: [
       chalk.blueBright("Account Name"),
+      chalk.blueBright("Project ID"),
       chalk.blueBright("Credentials File Location")
     ]
   });
@@ -20,6 +21,7 @@ export default async function listGcpAccounts(configDir: string): Promise<void> 
   for (const account of configData.gcpAccounts || []) {
     table.push([
       account.gcpAccountName,
+      account.gcpProjectId,
       account.credentialsFile
     ]);
   }

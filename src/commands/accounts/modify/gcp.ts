@@ -86,6 +86,19 @@ Modify a registered GCP account
       },
       {
         type: "input",
+        name: "gcpProjectId",
+        message: "Project ID",
+        default: gcpAccounts[index].gcpProjectId,
+        validate: (input: string) => {
+          if (input === "") {
+            return "GCP project ID name is required";
+          }
+
+          return true;
+        }
+      },
+      {
+        type: "input",
         name: "credentialsFile",
         message: "Credentials File Location",
         default: gcpAccounts[index].credentialsFile,

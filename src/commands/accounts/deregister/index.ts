@@ -2,7 +2,7 @@ import { Command, Help } from "@oclif/core";
 
 export default class AccountsDeregisterCommand extends Command {
   static description: string = `Deregister an account
-Deregister an AWS, Azure or GCP account
+Deregister an AWS or GCP account
 `;
 
   static args = [

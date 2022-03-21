@@ -14,6 +14,7 @@ export interface IAwsAccountCredentials {
 
 export interface IGcpAccountCredentials {
   gcpAccountName: string;
+  gcpProjectId: string;
   credentialsFile: string;
 }
 

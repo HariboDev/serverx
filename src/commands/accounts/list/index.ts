@@ -2,7 +2,7 @@ import { Command, Help } from "@oclif/core";
 
 export default class AccountsListCommand extends Command {
   static description: string = `List registered accounts
-List registered AWS, Azure & GCP accounts
+List registered AWS & GCP accounts
 `;
 
   static args = [

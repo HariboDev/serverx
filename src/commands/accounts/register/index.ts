@@ -2,7 +2,7 @@ import { Command, Help } from "@oclif/core";
 
 export default class AccountsRegisterCommand extends Command {
   static description: string = `Register an account
-Register an AWS, Azure or GCP account
+Register an AWS or GCP account
 `;
 
   static args = [
