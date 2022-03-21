@@ -128,6 +128,7 @@ Gathers up AWS, GCP and self-managed servers and displays summaries in a table
           }
         }
 
+        console.log(managed);
         table.push([
           (managed === "aws" ? instances[managed].indexOf(instance) : instances.aws.length + instances[managed].indexOf(instance)),
           (instance.name === "Unknown" ?

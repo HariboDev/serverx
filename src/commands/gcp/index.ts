@@ -85,6 +85,67 @@ Gathers up AWS, GCP and self-managed servers and displays summaries in a table
 
   async run(): Promise<void> {
     const { flags }: any = await this.parse(ListCommandGCP);
-    await getGCP(flags);
+
+    const table = new Table({
+      head: [
+        chalk.blueBright("Index"),
+        chalk.blueBright("Name"),
+        chalk.blueBright("Address"),
+        chalk.blueBright("Key Pair"),
+        chalk.blueBright("Username"),
+        chalk.blueBright("State"),
+        chalk.blueBright("Accessible"),
+        chalk.blueBright("Location"),
+        chalk.blueBright("Account"),
+        chalk.blueBright("Managed By")
+      ]
+    });
+    const managementChoice: Array<string> = flags.managed.toString() === "all" ? ["gcp", "self"] : flags.managed.toString().split(",");
+
+    const instances = await getGCP(flags);
+    console.log(instances)
+    for (const managed of managementChoice) {
+      for (const instance of instances[managed]) {
+        let stateChalk;
+        switch (instance.state) {
+          case "RUNNING": {
+            stateChalk = chalk.green(`${instance.state}`);
+            break;
+          }
+
+          case "TERMINATED": {
+            stateChalk = chalk.red(`${instance.state}`);
+            break;
+          }
+
+          default: {
+            stateChalk = chalk.red(`${instance.state}`);
+          }
+        }
+
+        table.push([
+          (managed === "gcp" ? instances[managed].indexOf(instance): instances.gcp.length + instances[managed].indexOf(instance)),
+          instance.name,
+          (instance.address === "Unknown" ?
+            chalk.grey(`${instance.address}`) :
+            chalk.white(`${instance.address}`)
+          ),
+          "",
+          "",
+          stateChalk,
+          (instance.accessible === true ?
+            chalk.green(`${instance.accessible}`) :
+            (instance.accessible === false ?
+              chalk.red(`${instance.accessible}`) :
+              chalk.white(`${instance.accessible}`)
+            )
+          ),
+          instance.location,
+          "",
+          managed
+        ]);
+      }
+    }
+    console.log(table.toString());
   }
 }
