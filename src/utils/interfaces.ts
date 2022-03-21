@@ -21,6 +21,7 @@ export interface IDataData {
 
 export interface IInstancesData {
   aws: Array<IInstance>;
+  gcp: Array<IInstance>;
   self: Array<IInstance>;
 }
 

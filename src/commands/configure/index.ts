@@ -95,7 +95,8 @@ Add accounts and customise serverx
     if (!fs.existsSync(path.join(this.config.dataDir, "instances.json"))) {
       const instancesData: IInstancesData = {
         aws: [],
-        self: []
+        self: [],
+        gcp: []
       };
 
       await writeJsonFile(this.config.dataDir, "instances", JSON.stringify(instancesData));
