@@ -1,7 +1,7 @@
 import * as AWS from "aws-sdk";
 import chalk from "chalk";
-import { readJsonFile, writeJsonFile, getEnabledRegions, getCurrentIp } from "./utils";
-import { IConfigData, IInstancesData, IAwsAccountCredentials, IInstance } from "./interfaces";
+import { readJsonFile, writeJsonFile, getEnabledRegions, getCurrentIp } from "../utils";
+import { IConfigData, IInstancesData, IAwsAccountCredentials, IInstance } from "../interfaces";
 import { FlagInput } from "@oclif/core/lib/interfaces";
 import { Config } from "@oclif/core";
 

@@ -2,9 +2,9 @@ import Compute, { InstancesClient } from "@google-cloud/compute";
 import { Config } from "@oclif/core";
 import { FlagInput } from "@oclif/core/lib/interfaces";
 import chalk from "chalk";
-import getZones from "./get-zones";
-import { IConfigData, IInstance, IInstancesData } from "./interfaces";
-import { isPortReachable, readJsonFile, writeJsonFile } from "./utils";
+import getZones from "../get-zones";
+import { IConfigData, IInstance, IInstancesData } from "../interfaces";
+import { isPortReachable, readJsonFile, writeJsonFile } from "../utils";
 
 export default async function getGCP(flags: FlagInput<any>, config: Config): Promise<any> {
   const configData: IConfigData = await readJsonFile(config.configDir, "config");

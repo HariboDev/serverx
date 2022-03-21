@@ -1,8 +1,8 @@
 import { Config } from "@oclif/core";
 import { FlagInput } from "@oclif/core/lib/interfaces";
 import chalk from "chalk";
-import { isPortReachable, readJsonFile } from "./utils";
-import { IConfigData, IInstance, IInstancesData } from "./interfaces";
+import { isPortReachable, readJsonFile } from "../utils";
+import { IConfigData, IInstance, IInstancesData } from "../interfaces";
 
 export default async function getSelf(flags: FlagInput<any>, config: Config): Promise<any> {
   const configData: IConfigData = await readJsonFile(config.configDir, "config");
