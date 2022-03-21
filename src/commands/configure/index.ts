@@ -48,7 +48,8 @@ Add accounts and customise serverx
     } else {
       configData = {
         keyDir: await this.askForKeyDirectory(),
-        accountCredentials: []
+        awsAccounts: [],
+        gcpAccounts: []
       };
     }
 
@@ -75,10 +76,19 @@ Add accounts and customise serverx
 
     const confirmIp: IConfirmIpObject = await inquirer.prompt([
       {
-        type: "confirm",
+        type: "list",
         name: "confirm",
         message: `Public IP: ${publicIP}`,
-        default: true
+        choices: [
+          {
+            name: "Yes",
+            value: true
+          },
+          {
+            name: "No",
+            value: false
+          }
+        ]
       }
     ]);
 
@@ -92,9 +102,16 @@ Add accounts and customise serverx
       return;
     }
 
+    const createGcpCredentialsDir: boolean = await createDir(path.join(this.config.dataDir, "gcp"), "GCP credentials");
+
+    if (!createGcpCredentialsDir) {
+      return;
+    }
+
     if (!fs.existsSync(path.join(this.config.dataDir, "instances.json"))) {
       const instancesData: IInstancesData = {
         aws: [],
+        gcp: [],
         self: []
       };
 
@@ -107,7 +124,7 @@ Add accounts and customise serverx
       {
         type: "input",
         name: "keyDir",
-        message: "Default .key directory",
+        message: "Default private key directory",
         default: process.platform === "win32" ? "/ssh" : `${process.env.HOME}/.ssh`,
         validate: (value: string) => {
           if (process.platform !== "win32") {

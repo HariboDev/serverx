@@ -1,5 +1,4 @@
-import { Command, Flags, Help } from "@oclif/core";
-import { FlagInput } from "@oclif/core/lib/interfaces";
+import { Command, Help } from "@oclif/core";
 
 export default class AccountsCommand extends Command {
   static description: string = `Manage registered AWS & GCP accounts
@@ -14,14 +13,6 @@ List, register, deregister or modify registered AWS & GCP accounts
       options: ["list", "register", "deregister", "modify"]
     }
   ];
-
-  static flags: FlagInput<any> = {
-    detail: Flags.boolean({
-      char: "d",
-      description: "Display extra account details",
-      default: false
-    })
-  };
 
   static examples: Array<string> = [
     "$ serverx accounts",

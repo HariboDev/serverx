@@ -1,7 +1,7 @@
 import * as AWS from "aws-sdk";
 import chalk from "chalk";
 import { isPortReachable, readJsonFile, writeJsonFile, getEnabledRegions, getCurrentIp } from "./utils";
-import { IConfigData, IInstancesData, IAccountCredentials, IInstance } from "./interfaces";
+import { IConfigData, IInstancesData, IAwsAccountCredentials, IInstance } from "./interfaces";
 import { FlagInput } from "@oclif/core/lib/interfaces";
 import { Config } from "@oclif/core";
 
@@ -18,15 +18,15 @@ export default async function get(flags: FlagInput<any>, config: Config): Promis
     return;
   }
 
-  const accountsToSearch: Array<IAccountCredentials> = flags.account.toString() === "all" ?
-    configData.accountCredentials : configData.accountCredentials.filter((account: IAccountCredentials) => {
+  const accountsToSearch: Array<IAwsAccountCredentials> = flags.account.toString() === "all" ?
+    configData.awsAccounts : configData.awsAccounts.filter((account: IAwsAccountCredentials) => {
       return flags.account.toString().split(",").includes(account.awsAccountName);
     });
 
   if (JSON.parse(flags["no-refresh"].toString())) {
     const instances: IInstancesData = {
       aws: instancesData.aws.filter((instance: IInstance) => {
-        return accountsToSearch.some((account: IAccountCredentials) => {
+        return accountsToSearch.some((account: IAwsAccountCredentials) => {
           return account.awsAccountName === instance.account;
         }) &&
           (flags.managed.toString() === "all" ||
@@ -36,6 +36,7 @@ export default async function get(flags: FlagInput<any>, config: Config): Promis
           (flags.state.toString() === "all" ||
             flags.state.toString().split(",").includes(instance.state));
       }),
+      gcp: [],
       self: instancesData.self.filter((instance: IInstance) => {
         return (flags.managed.toString() === "all" ||
           flags.managed.toString().split(",").includes("self")) &&
@@ -90,7 +91,7 @@ export default async function get(flags: FlagInput<any>, config: Config): Promis
   return instancesData;
 }
 
-async function checkRegions(account: IAccountCredentials, flags: any, instancesData: any): Promise<void> {
+async function checkRegions(account: IAwsAccountCredentials, flags: any, instancesData: any): Promise<void> {
   const regionsToSearch: Array<string> = flags.region.toString() === "all" ?
     await getEnabledRegions(account) : flags.region.toString().split(",");
 
@@ -128,7 +129,7 @@ async function checkRegions(account: IAccountCredentials, flags: any, instancesD
   return instancesData;
 }
 
-async function getInstances(region: string, account: IAccountCredentials, roleCredentials: AWS.STS.AssumeRoleResponse | undefined, flags: FlagInput<any>): Promise<Array<IInstance>> {
+async function getInstances(region: string, account: IAwsAccountCredentials, roleCredentials: AWS.STS.AssumeRoleResponse | undefined, flags: FlagInput<any>): Promise<Array<IInstance>> {
   const instancesToReturn: Array<IInstance> = [];
 
   const describeInstancesParams: AWS.EC2.DescribeInstancesRequest = {

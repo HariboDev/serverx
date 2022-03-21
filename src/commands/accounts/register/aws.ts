@@ -1,25 +1,27 @@
 import { Command, Flags } from "@oclif/core";
-import { readJsonFile, writeJsonFile } from "../../utils/utils";
-import listAccounts from "../../utils/list-accounts";
+import { readJsonFile, writeJsonFile } from "../../../utils/utils";
+import listAwsAccounts from "../../../utils/list-accounts/aws";
 const inquirer = require("inquirer");
-import { IConfigData, IAccountCredentials } from "../../utils/interfaces";
+import { IConfigData, IAwsAccountCredentials } from "../../../utils/interfaces";
 import { FlagInput } from "@oclif/core/lib/interfaces";
 
 export default class AccountsRegisterCommand extends Command {
-  static description: string = `Register an account
-Register an AWS or GCP account
+  static description: string = `Register an AWS account
+Register an AWS account
 `;
 
   static flags: FlagInput<any> = {
     detail: Flags.boolean({
       char: "d",
       description: "Display extra account details",
-      default: false
+      default: false,
+      required: false
     })
   };
 
   static examples: Array<string> = [
-    "$ serverx accounts register"
+    "$ serverx accounts register aws",
+    "$ serverx accounts register aws --detail"
   ];
 
   async run(): Promise<void> {
@@ -27,18 +29,34 @@ Register an AWS or GCP account
 
     const configData: IConfigData = await readJsonFile(this.config.configDir, "config");
 
-    if (!configData || !configData.accountCredentials) {
+    if (!configData || !configData.awsAccounts) {
       return;
     }
 
-    const newAccount: IAccountCredentials = await inquirer.prompt([
+    configData.awsAccounts.push(await this.registerAWS(configData.awsAccounts));
+
+    const writeSuccess: boolean = await writeJsonFile(this.config.configDir, "config", JSON.stringify(configData));
+
+    if (!writeSuccess) {
+      return;
+    }
+
+    await listAwsAccounts(this.config.configDir, flags.detail);
+  }
+
+  async registerAWS(awsAccounts: Array<IAwsAccountCredentials>): Promise<IAwsAccountCredentials> {
+    const newAccount: IAwsAccountCredentials = await inquirer.prompt([
       {
         type: "input",
         name: "awsAccountName",
         message: "AWS Account Name",
         validate: (input: string) => {
           if (input.length === 0) {
-            return "AWS Account Name is required";
+            return "Account name is required";
+          }
+
+          if (awsAccounts.some((account: IAwsAccountCredentials) => account.awsAccountName === input)) {
+            return "Account name already exists";
           }
 
           return true;
@@ -50,7 +68,7 @@ Register an AWS or GCP account
         message: "AWS Access Key",
         validate: (input: string) => {
           if (input.length === 0) {
-            return "AWS Access Key is required";
+            return "AWS access key is required";
           }
 
           return true;
@@ -62,17 +80,26 @@ Register an AWS or GCP account
         message: "AWS Secret Access Key",
         validate: (input: string) => {
           if (input.length === 0) {
-            return "AWS Secret Access Key is required";
+            return "AWS secret access key is required";
           }
 
           return true;
         }
       },
       {
-        type: "confirm",
+        type: "list",
         name: "needRole",
         message: "Do you need to assume a role?",
-        default: false
+        choices: [
+          {
+            name: "Yes",
+            value: true
+          },
+          {
+            name: "No",
+            value: false
+          }
+        ]
       },
       {
         type: "input",
@@ -91,14 +118,8 @@ Register an AWS or GCP account
       }
     ]);
 
-    configData.accountCredentials.push(newAccount);
+    delete newAccount.needRole;
 
-    const writeSuccess: boolean = await writeJsonFile(this.config.configDir, "config", JSON.stringify(configData));
-
-    if (!writeSuccess) {
-      return;
-    }
-
-    await listAccounts(this.config.configDir, flags.detail);
+    return newAccount;
   }
 }

@@ -1,20 +1,9 @@
 import Table from "cli-table3";
 import chalk from "chalk";
-import { readJsonFile } from "./utils";
+import { readJsonFile } from "../utils";
+import { IConfigData } from "../interfaces";
 
-interface IConfigData {
-  keyDir?: string;
-  accountCredentials?: Array<IAccountCredentials>;
-}
-
-interface IAccountCredentials {
-  awsAccountName: string;
-  awsAccessKey: string;
-  awsSecretAccessKey: string;
-  awsRole?: string;
-}
-
-export default async function listAccounts(configDir: string, detail: boolean): Promise<void> {
+export default async function listAwsAccounts(configDir: string, detail: boolean): Promise<void> {
   const configData: IConfigData = await readJsonFile(configDir, "config");
 
   if (!configData) {
@@ -23,7 +12,6 @@ export default async function listAccounts(configDir: string, detail: boolean): 
 
   const table: Table.Table = new Table({
     head: [
-      chalk.blueBright("Index"),
       chalk.blueBright("Account Name"),
       chalk.blueBright("Access Key"),
       chalk.blueBright("Secret Access Key"),
@@ -31,7 +19,7 @@ export default async function listAccounts(configDir: string, detail: boolean): 
     ]
   });
 
-  for (const account of configData.accountCredentials || []) {
+  for (const account of configData.awsAccounts) {
     let secret: string = account.awsSecretAccessKey;
 
     if (!detail) {
@@ -47,7 +35,6 @@ export default async function listAccounts(configDir: string, detail: boolean): 
     }
 
     table.push([
-      (configData?.accountCredentials || []).indexOf(account),
       account.awsAccountName,
       account.awsAccessKey,
       secret,
