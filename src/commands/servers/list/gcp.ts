@@ -3,7 +3,7 @@ import Table from "cli-table3";
 import chalk from "chalk";
 import { IInstancesData } from "../../../utils/interfaces";
 import { FlagInput } from "@oclif/core/lib/interfaces";
-import getGCP from "../../../utils/get-gcp";
+import getGCP from "../../../utils/get/gcp";
 
 export default class ListCommandGCP extends Command {
   static description = `GCP 

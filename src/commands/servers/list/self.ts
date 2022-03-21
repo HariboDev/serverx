@@ -1,7 +1,7 @@
 import { Command, Flags } from "@oclif/core";
 import Table from "cli-table3";
 import chalk from "chalk";
-import getSelf from "../../../utils/get-self";
+import getSelf from "../../../utils/get/self";
 import { IInstancesData } from "../../../utils/interfaces";
 import { FlagInput } from "@oclif/core/lib/interfaces";
 

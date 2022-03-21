@@ -33,7 +33,8 @@
     "inquirer": "^8.2.1",
     "net": "^1.0.2",
     "node-ssh": "^12.0.3",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "typescript": "4.1.6"
   },
   "devDependencies": {
     "@oclif/test": "^2",
@@ -47,8 +48,7 @@
     "oclif": "^2",
     "shx": "^0.3.3",
     "ts-node": "^10.2.1",
-    "tslib": "^2.3.1",
-    "typescript": "^4.6.2"
+    "tslib": "^2.3.1"
   },
   "oclif": {
     "bin": "serverx",

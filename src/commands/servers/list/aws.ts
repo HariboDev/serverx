@@ -1,7 +1,7 @@
 import { Command, Flags } from "@oclif/core";
 import Table from "cli-table3";
 import chalk from "chalk";
-import getAWS from "../../../utils/get-aws";
+import getAWS from "../../../utils/get/aws";
 import {  IInstancesData } from "../../../utils/interfaces";
 import { FlagInput } from "@oclif/core/lib/interfaces";
 
