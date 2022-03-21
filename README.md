@@ -1,7 +1,7 @@
 ServerX
 =================
 
-Centrally manage AWS, GCP and on-premise servers and connect to them via SSH. Update security group, access control list, firewall and security policy rules with your new IP. 
+Centrally manage AWS, GCP and self-managed servers and connect to them via SSH. Update security group, access control list, firewall and security policy rules with your new IP. 
 
 [![Docs](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://serverx.haribodev.uk)
 [![Version](https://img.shields.io/npm/v/oclif-hello-world.svg)](https://npmjs.org/package/serverx)
@@ -29,18 +29,29 @@ USAGE
 # Commands
 <!-- commands -->
 * [`serverx accounts ACTION`](#serverx-accounts-action)
-* [`serverx accounts deregister`](#serverx-accounts-deregister)
-* [`serverx accounts list`](#serverx-accounts-list)
-* [`serverx accounts modify`](#serverx-accounts-modify)
-* [`serverx accounts register`](#serverx-accounts-register)
+* [`serverx accounts deregister ACTION`](#serverx-accounts-deregister-action)
+* [`serverx accounts deregister aws`](#serverx-accounts-deregister-aws)
+* [`serverx accounts deregister gcp`](#serverx-accounts-deregister-gcp)
+* [`serverx accounts list ACTION`](#serverx-accounts-list-action)
+* [`serverx accounts list aws`](#serverx-accounts-list-aws)
+* [`serverx accounts list gcp`](#serverx-accounts-list-gcp)
+* [`serverx accounts modify ACTION`](#serverx-accounts-modify-action)
+* [`serverx accounts modify aws`](#serverx-accounts-modify-aws)
+* [`serverx accounts modify gcp`](#serverx-accounts-modify-gcp)
+* [`serverx accounts register ACTION`](#serverx-accounts-register-action)
+* [`serverx accounts register aws`](#serverx-accounts-register-aws)
+* [`serverx accounts register gcp`](#serverx-accounts-register-gcp)
 * [`serverx autocomplete [SHELL]`](#serverx-autocomplete-shell)
 * [`serverx commands`](#serverx-commands)
 * [`serverx configure`](#serverx-configure)
 * [`serverx connect`](#serverx-connect)
 * [`serverx help [COMMAND]`](#serverx-help-command)
-* [`serverx list`](#serverx-list)
 * [`serverx servers ACTION`](#serverx-servers-action)
 * [`serverx servers add`](#serverx-servers-add)
+* [`serverx servers list ACTION`](#serverx-servers-list-action)
+* [`serverx servers list aws`](#serverx-servers-list-aws)
+* [`serverx servers list gcp`](#serverx-servers-list-gcp)
+* [`serverx servers list self`](#serverx-servers-list-self)
 * [`serverx servers modify`](#serverx-servers-modify)
 * [`serverx servers remove`](#serverx-servers-remove)
 * [`serverx update`](#serverx-update)
@@ -51,13 +62,10 @@ Manage registered AWS & GCP accounts
 
 ```
 USAGE
-  $ serverx accounts [ACTION] [-d]
+  $ serverx accounts [ACTION]
 
 ARGUMENTS
   ACTION  (list|register|deregister|modify) List, register, deregister or modify an account
-
-FLAGS
-  -d, --detail  Display extra account details
 
 DESCRIPTION
   Manage registered AWS & GCP accounts
@@ -78,16 +86,16 @@ EXAMPLES
 
 _See code: [dist/commands/accounts/index.ts](https://github.com/HariboDev/serverx/blob/v0.0.0/dist/commands/accounts/index.ts)_
 
-## `serverx accounts deregister`
+## `serverx accounts deregister ACTION`
 
 Deregister an account
 
 ```
 USAGE
-  $ serverx accounts deregister [-d]
+  $ serverx accounts deregister [ACTION]
 
-FLAGS
-  -d, --detail  Display extra account details
+ARGUMENTS
+  ACTION  (aws|gcp) List registered AWS or GCP accounts
 
 DESCRIPTION
   Deregister an account
@@ -96,58 +104,189 @@ DESCRIPTION
 
 EXAMPLES
   $ serverx accounts deregister
+
+  $ serverx accounts deregister aws
+
+  $ serverx accounts deregister gcp
 ```
 
-## `serverx accounts list`
+## `serverx accounts deregister aws`
 
-List accounts
+Deregister an AWS account
 
 ```
 USAGE
-  $ serverx accounts list [-d]
+  $ serverx accounts deregister aws [-d]
 
 FLAGS
   -d, --detail  Display extra account details
 
 DESCRIPTION
-  List accounts
+  Deregister an AWS account
+
+  Deregister an AWS account
+
+EXAMPLES
+  $ serverx accounts deregister aws
+
+  $ serverx accounts deregister aws --detail
+```
+
+## `serverx accounts deregister gcp`
+
+Deregister a GCP account
+
+```
+USAGE
+  $ serverx accounts deregister gcp
+
+DESCRIPTION
+  Deregister a GCP account
+
+  Deregister a GCP account
+
+EXAMPLES
+  $ serverx accounts deregister gcp
+```
+
+## `serverx accounts list ACTION`
+
+List registered accounts
+
+```
+USAGE
+  $ serverx accounts list [ACTION]
+
+ARGUMENTS
+  ACTION  (aws|gcp) List registered AWS or GCP accounts
+
+DESCRIPTION
+  List registered accounts
 
   List registered AWS & GCP accounts
 
 EXAMPLES
   $ serverx accounts list
+
+  $ serverx accounts list aws
+
+  $ serverx accounts list gcp
 ```
 
-## `serverx accounts modify`
+## `serverx accounts list aws`
 
-Modify an account
+List registered AWS accounts
 
 ```
 USAGE
-  $ serverx accounts modify [-d]
+  $ serverx accounts list aws [-d]
 
 FLAGS
   -d, --detail  Display extra account details
 
 DESCRIPTION
-  Modify an account
+  List registered AWS accounts
+
+  List registered AWS accounts
+
+EXAMPLES
+  $ serverx accounts list aws
+
+  $ serverx accounts list aws --detail
+```
+
+## `serverx accounts list gcp`
+
+List registered AWS accounts
+
+```
+USAGE
+  $ serverx accounts list gcp
+
+DESCRIPTION
+  List registered AWS accounts
+
+  List registered AWS accounts
+
+EXAMPLES
+  $ serverx accounts list gcp
+```
+
+## `serverx accounts modify ACTION`
+
+Modify a registered account
+
+```
+USAGE
+  $ serverx accounts modify [ACTION]
+
+ARGUMENTS
+  ACTION  (aws|gcp) Modify a registered AWS or GCP account
+
+DESCRIPTION
+  Modify a registered account
 
   Modify a registered AWS or GCP account
 
 EXAMPLES
-  $ serverx accounts register
+  $ serverx accounts modify
+
+  $ serverx accounts modify aws
+
+  $ serverx accounts modify gcp
 ```
 
-## `serverx accounts register`
+## `serverx accounts modify aws`
+
+Modify an AWS account
+
+```
+USAGE
+  $ serverx accounts modify aws [-d]
+
+FLAGS
+  -d, --detail  Display extra account details
+
+DESCRIPTION
+  Modify an AWS account
+
+  Modify a registered AWS account
+
+EXAMPLES
+  $ serverx accounts modify aws
+
+  $ serverx accounts modify aws --detail
+```
+
+## `serverx accounts modify gcp`
+
+Modify a GCP account
+
+```
+USAGE
+  $ serverx accounts modify gcp
+
+DESCRIPTION
+  Modify a GCP account
+
+  Modify a registered GCP account
+
+EXAMPLES
+  $ serverx accounts modify gcp
+
+  $ serverx accounts modify gcp --detail
+```
+
+## `serverx accounts register ACTION`
 
 Register an account
 
 ```
 USAGE
-  $ serverx accounts register [-d]
+  $ serverx accounts register [ACTION]
 
-FLAGS
-  -d, --detail  Display extra account details
+ARGUMENTS
+  ACTION  (aws|gcp) List registered AWS or GCP accounts
 
 DESCRIPTION
   Register an account
@@ -156,6 +295,49 @@ DESCRIPTION
 
 EXAMPLES
   $ serverx accounts register
+
+  $ serverx accounts register aws
+
+  $ serverx accounts register gcp
+```
+
+## `serverx accounts register aws`
+
+Register an AWS account
+
+```
+USAGE
+  $ serverx accounts register aws [-d]
+
+FLAGS
+  -d, --detail  Display extra account details
+
+DESCRIPTION
+  Register an AWS account
+
+  Register an AWS account
+
+EXAMPLES
+  $ serverx accounts register aws
+
+  $ serverx accounts register aws --detail
+```
+
+## `serverx accounts register gcp`
+
+Register a GCP account
+
+```
+USAGE
+  $ serverx accounts register gcp
+
+DESCRIPTION
+  Register a GCP account
+
+  Register a GCP account
+
+EXAMPLES
+  $ serverx accounts register gcp
 ```
 
 ## `serverx autocomplete [SHELL]`
@@ -284,37 +466,6 @@ DESCRIPTION
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.12/src/commands/help.ts)_
 
-## `serverx list`
-
-Display AWS, GCP and self-managed servers
-
-```
-USAGE
-  $ serverx list [-r
-    us-east-1|us-east-2|us-west-1|us-west-2|ap-south-1|ap-northeast-1|ap-northeast-2|ap-southeast-1|ap-southeast-2|ca-ce
-    ntral-1|eu-central-1|eu-west-1|eu-west-2|eu-west-3|eu-north-1|sa-east-1] [-s
-    pending|running|stopping|stopped|shutting-down|terminated] [-a <value>] [-m aws|self] [--no-refresh]
-
-FLAGS
-  -a, --account=<value>...   [default: all] Only get servers from a specific account(s)
-  -m, --managed=<option>...  [default: all] Only get servers under a specific management(s)
-                             <options: aws|self>
-  -r, --region=<option>...   [default: all] Only get servers in a specific region(s)
-                             <options: us-east-1|us-east-2|us-west-1|us-west-2|ap-south-1|ap-northeast-1|ap-northeast-2|
-                             ap-southeast-1|ap-southeast-2|ca-central-1|eu-central-1|eu-west-1|eu-west-2|eu-west-3|eu-no
-                             rth-1|sa-east-1>
-  -s, --state=<option>...    [default: all] Only get servers of in a specific state(s)
-                             <options: pending|running|stopping|stopped|shutting-down|terminated>
-  --no-refresh               Don't refresh the cache of known servers
-
-DESCRIPTION
-  Display AWS, GCP and self-managed servers
-
-  Gathers up AWS, GCP and self-managed servers and displays summaries in a table
-```
-
-_See code: [dist/commands/list/index.ts](https://github.com/HariboDev/serverx/blob/v0.0.0/dist/commands/list/index.ts)_
-
 ## `serverx servers ACTION`
 
 Manage self-managed servers
@@ -358,6 +509,119 @@ DESCRIPTION
 
 EXAMPLES
   $ serverx servers add
+```
+
+## `serverx servers list ACTION`
+
+List servers
+
+```
+USAGE
+  $ serverx servers list [ACTION]
+
+ARGUMENTS
+  ACTION  (aws|gcp|self) List AWS, GCP and self-managed servers
+
+DESCRIPTION
+  List servers
+
+  List AWS, GCP and self-managed servers
+
+EXAMPLES
+  $ serverx servers list
+
+  $ serverx servers list aws
+
+  $ serverx servers list gcp
+
+  $ serverx servers list self
+```
+
+## `serverx servers list aws`
+
+Display AWS servers
+
+```
+USAGE
+  $ serverx servers list aws [-r
+    us-east-1|us-east-2|us-west-1|us-west-2|ap-south-1|ap-northeast-1|ap-northeast-2|ap-southeast-1|ap-southeast-2|ca-ce
+    ntral-1|eu-central-1|eu-west-1|eu-west-2|eu-west-3|eu-north-1|sa-east-1] [-s
+    pending|running|stopping|stopped|shutting-down|terminated] [-a <value>] [--no-refresh]
+
+FLAGS
+  -a, --account=<value>...  [default: all] Only get servers from a specific account(s)
+  -r, --region=<option>...  [default: all] Only get servers in a specific region(s)
+                            <options: us-east-1|us-east-2|us-west-1|us-west-2|ap-south-1|ap-northeast-1|ap-northeast-2|a
+                            p-southeast-1|ap-southeast-2|ca-central-1|eu-central-1|eu-west-1|eu-west-2|eu-west-3|eu-nort
+                            h-1|sa-east-1>
+  -s, --state=<option>...   [default: all] Only get servers of in a specific state(s)
+                            <options: pending|running|stopping|stopped|shutting-down|terminated>
+  --no-refresh              Don't refresh the cache of known servers
+
+DESCRIPTION
+  Display AWS servers
+
+  Gathers up AWS servers and displays summaries in a table
+```
+
+## `serverx servers list gcp`
+
+GCP 
+
+```
+USAGE
+  $ serverx servers list gcp [-r
+    asia-east1|asia-east2|asia-northeast1|asia-northeast2|asia-northeast3|asia-south1|asia-south2|asia-southeast1|asia-s
+    outheast2|australia-southeast1|europe-central2|europe-north1|europe-west1|europe-west2|europe-west3|europe-west4|eur
+    ope-west6|northamerica-northeast1|northamerica-northeast2|southamerica-east1|southamerica-west1|us-central1|us-east1
+    |us-east4|us-west1|us-west2|us-west3|us-west4] [-s pending|running|stopping|stopped|shutting-down|terminated] [-a
+    <value>] [--no-refresh]
+
+FLAGS
+  -a, --account=<value>...
+      [default: all] Only get servers from a specific account(s)
+
+  -r, --region=<option>...
+      [default: all] Only get servers in a specific region(s)
+      <options: asia-east1|asia-east2|asia-northeast1|asia-northeast2|asia-northeast3|asia-south1|asia-south2|asia-southea
+      st1|asia-southeast2|australia-southeast1|europe-central2|europe-north1|europe-west1|europe-west2|europe-west3|europe
+      -west4|europe-west6|northamerica-northeast1|northamerica-northeast2|southamerica-east1|southamerica-west1|us-central
+      1|us-east1|us-east4|us-west1|us-west2|us-west3|us-west4>
+
+  -s, --state=<option>...
+      [default: all] Only get servers of in a specific state(s)
+      <options: pending|running|stopping|stopped|shutting-down|terminated>
+
+  --no-refresh
+      Don't refresh the cache of known servers
+
+DESCRIPTION
+  GCP
+
+  Gathers up GCP servers and displays summaries in a table
+```
+
+## `serverx servers list self`
+
+Display self-managed servers
+
+```
+USAGE
+  $ serverx servers list self [-r
+    us-east-1|us-east-2|us-west-1|us-west-2|ap-south-1|ap-northeast-1|ap-northeast-2|ap-southeast-1|ap-southeast-2|ca-ce
+    ntral-1|eu-central-1|eu-west-1|eu-west-2|eu-west-3|eu-north-1|sa-east-1] [--no-refresh]
+
+FLAGS
+  -r, --region=<option>...  [default: all] Only get servers in a specific region(s)
+                            <options: us-east-1|us-east-2|us-west-1|us-west-2|ap-south-1|ap-northeast-1|ap-northeast-2|a
+                            p-southeast-1|ap-southeast-2|ca-central-1|eu-central-1|eu-west-1|eu-west-2|eu-west-3|eu-nort
+                            h-1|sa-east-1>
+  --no-refresh              Don't refresh the cache of known servers
+
+DESCRIPTION
+  Display self-managed servers
+
+  Gathers up self-managed servers and displays summaries in a table
 ```
 
 ## `serverx servers modify`
