@@ -77,7 +77,7 @@ async function listAllInstances(projectId: string): Promise<any> {
           accessible = await isPortReachable(22, { host: ephermeralIP, timeout: 1000 });
         }
 
-        instancesData.push({ name: instance.name, address: ephermeralIP, state: instance.status, location: zone, accessible: accessible });
+        instancesData.push({ name: instance.name, address: ephermeralIP, username: "", hasKeyPair: "", keyPair: "", state: instance.status, accessible: accessible, location: zone, account: "" });
       }
     }
   }
@@ -114,7 +114,7 @@ async function listInstanceByZone(projectId: string, regions: string[]): Promise
         accessible = await isPortReachable(22, { host: ephermeralIP, timeout: 1000 });
       }
 
-      instancesData.push({ name: instance.name, address: ephermeralIP, state: instance.status, location: zone, accessible: accessible });
+      instancesData.push({ name: instance.name, address: ephermeralIP, username: "", hasKeyPair: "", keyPair: "", state: instance.status, accessible: accessible, location: zone, account: "" });
     }
   }
 

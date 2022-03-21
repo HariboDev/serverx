@@ -35,26 +35,6 @@ Gathers up self-managed servers and displays summaries in a table
         "sa-east-1"
       ]
     }),
-    state: Flags.string({
-      char: "s",
-      description: "Only get servers of in a specific state(s)",
-      multiple: true,
-      default: "all",
-      options: [
-        "pending",
-        "running",
-        "stopping",
-        "stopped",
-        "shutting-down",
-        "terminated"
-      ]
-    }),
-    account: Flags.string({
-      char: "a",
-      description: "Only get servers from a specific account(s)",
-      multiple: true,
-      default: "all"
-    }),
     "no-refresh": Flags.boolean({
       description: "Don't refresh the cache of known servers",
       default: false
@@ -78,10 +58,8 @@ Gathers up self-managed servers and displays summaries in a table
         chalk.blueBright("Address"),
         chalk.blueBright("Key Pair"),
         chalk.blueBright("Username"),
-        chalk.blueBright("State"),
         chalk.blueBright("Accessible"),
         chalk.blueBright("Location"),
-        chalk.blueBright("Account"),
         chalk.blueBright("Managed By")
       ]
     });

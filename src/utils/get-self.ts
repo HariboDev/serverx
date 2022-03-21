@@ -11,7 +11,7 @@ export default async function getSelf(flags: FlagInput<any>, config: Config): Pr
     return;
   }
 
-  const instancesData: IInstancesData = await readJsonFile(config.dataDir, "instances-self");
+  const instancesData: IInstancesData = await readJsonFile(config.dataDir, "instances");
 
   if (!instancesData) {
     return;
@@ -49,4 +49,6 @@ export default async function getSelf(flags: FlagInput<any>, config: Config): Pr
     instanceData.accessible = await isPortReachable(22, { host: instance.address, timeout: 1000 });
     instancesData.self.push(instanceData);
   }
+
+  return instancesData;
 }
