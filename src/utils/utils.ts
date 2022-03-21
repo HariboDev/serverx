@@ -5,7 +5,7 @@ const path = require("path");
 import * as net from "net";
 import * as AWS from "aws-sdk";
 import axios from "axios";
-import { IAccountCredentials, IDataData, IIPChange } from "./interfaces";
+import { IAwsAccountCredentials, IDataData, IIPChange } from "./interfaces";
 
 export async function readJsonFile(dir: string, filename: string): Promise<any> {
   let jsonData: any = {};
@@ -101,7 +101,7 @@ export async function isPortReachable(port: number, { host, timeout = 1000 }: { 
   }
 }
 
-export async function getEnabledRegions(account: IAccountCredentials): Promise<Array<string>> {
+export async function getEnabledRegions(account: IAwsAccountCredentials): Promise<Array<string>> {
   const ec2: AWS.EC2 = new AWS.EC2({
     accessKeyId: account.awsAccessKey,
     secretAccessKey: account.awsSecretAccessKey,

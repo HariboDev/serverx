@@ -1,6 +1,6 @@
 import { Command, Flags } from "@oclif/core";
 import chalk from "chalk";
-import { IAccountCredentials, IConfigData, IDataData, IIPChange } from "../../utils/interfaces";
+import { IAwsAccountCredentials, IConfigData, IDataData, IIPChange } from "../../utils/interfaces";
 import { getEnabledRegions, checkIpChanged, readJsonFile, writeJsonFile } from "../../utils/utils";
 import * as AWS from "aws-sdk";
 import { FlagInput } from "@oclif/core/lib/interfaces";
@@ -66,7 +66,7 @@ Checks if your public IP has changed and updates relevant AWS security groups
         return;
       }
 
-      for await (const account of configData.accountCredentials) {
+      for await (const account of configData.awsAccounts) {
         console.log(`${chalk.green("[INFO]")} Checking account: ${account.awsAccountName}`);
 
         const regions: Array<string> = flags.region.toString() === "all" ? (await getEnabledRegions(account)) : flags.region.toString().split(",");
@@ -81,7 +81,7 @@ Checks if your public IP has changed and updates relevant AWS security groups
     }
   }
 
-  async checkRegion(region: string, account: IAccountCredentials, newIp: string, oldIp: string): Promise<void> {
+  async checkRegion(region: string, account: IAwsAccountCredentials, newIp: string, oldIp: string): Promise<void> {
     console.log(`${chalk.green("[INFO]")} Checking region: ${region}`);
 
     const ec2 = new AWS.EC2({

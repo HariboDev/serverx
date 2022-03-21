@@ -1,7 +1,7 @@
 {
   "name": "serverx",
   "version": "0.0.0",
-  "description": "Centrally manage AWS, GCP and on-premise servers and connet to them via SSH. Update security group, access control list, firewall and security policy rules with your new public IP.",
+  "description": "Centrally manage AWS, GCP and self-managed servers and connet to them via SSH. Update security group, access control list, firewall and security policy rules with your new public IP.",
   "author": "HariboDev",
   "bin": {
     "serverx": "./bin/run"
@@ -17,6 +17,7 @@
     "/oclif.manifest.json"
   ],
   "dependencies": {
+    "@google-cloud/compute": "^3.1.2",
     "@oclif/core": "^1",
     "@oclif/plugin-autocomplete": "^1.2.0",
     "@oclif/plugin-commands": "^2.1.0",
@@ -32,7 +33,8 @@
     "inquirer": "^8.2.1",
     "net": "^1.0.2",
     "node-ssh": "^12.0.3",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "typescript": "4.1.6"
   },
   "devDependencies": {
     "@oclif/test": "^2",
@@ -46,8 +48,7 @@
     "oclif": "^2",
     "shx": "^0.3.3",
     "ts-node": "^10.2.1",
-    "tslib": "^2.3.1",
-    "typescript": "4.1.6"
+    "tslib": "^2.3.1"
   },
   "oclif": {
     "bin": "serverx",
@@ -94,7 +95,7 @@
     "access-control-list",
     "security-policy",
     "egress",
-    "conneect"
+    "connect"
   ],
   "types": "dist/index.d.ts"
 }

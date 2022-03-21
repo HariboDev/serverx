@@ -1,6 +1,21 @@
 export interface IConfigData {
   keyDir: string;
-  accountCredentials: Array<IAccountCredentials>;
+  awsAccounts: Array<IAwsAccountCredentials>;
+  gcpAccounts: Array<IGcpAccountCredentials>;
+}
+
+export interface IAwsAccountCredentials {
+  awsAccountName: string;
+  awsAccessKey: string;
+  awsSecretAccessKey: string;
+  needRole? : boolean;
+  awsRole?: string;
+}
+
+export interface IGcpAccountCredentials {
+  gcpAccountName: string;
+  gcpProjectId: string;
+  credentialsFile: string;
 }
 
 export interface IKeyObject {
@@ -21,6 +36,7 @@ export interface IDataData {
 
 export interface IInstancesData {
   aws: Array<IInstance>;
+  gcp: Array<IInstance>;
   self: Array<IInstance>;
 }
 
@@ -34,13 +50,6 @@ export interface IInstance {
   accessible: string | boolean;
   location: string;
   account: string;
-}
-
-export interface IAccountCredentials {
-  awsAccountName: string;
-  awsAccessKey: string;
-  awsSecretAccessKey: string;
-  awsRole?: string;
 }
 
 export interface IIPChange {
