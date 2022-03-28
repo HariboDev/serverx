@@ -1,13 +1,12 @@
 import { Command, Flags } from "@oclif/core";
-import { readJsonFile, writeJsonFile } from "../../../utils/utils";
-import listAwsAccounts from "../../../utils/list-accounts/aws";
+import { readJsonFile, writeJsonFile } from "../../../../utils/utils";
+import listAwsAccounts from "../../../../utils/list-accounts/aws";
 const inquirer = require("inquirer");
-import { IConfigData, IAwsAccountCredentials } from "../../../utils/interfaces";
+import { IConfigData, IAwsAccountCredentials } from "../../../../utils/interfaces";
 import { FlagInput } from "@oclif/core/lib/interfaces";
 
 export default class AccountsRegisterCommand extends Command {
   static description: string = `Register an AWS account
-Register an AWS account
 `;
 
   static flags: FlagInput<any> = {
@@ -19,9 +18,19 @@ Register an AWS account
     })
   };
 
+  static args = [
+    {
+      name: "action",
+      description: "Register AWS accounts",
+      required: false,
+      options: ["import"]
+    }
+  ];
+
   static examples: Array<string> = [
     "$ serverx accounts register aws",
-    "$ serverx accounts register aws --detail"
+    "$ serverx accounts register aws --detail",
+    "$ serverx accounts register aws import"
   ];
 
   async run(): Promise<void> {

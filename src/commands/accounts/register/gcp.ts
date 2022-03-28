@@ -8,7 +8,6 @@ const path = require("path");
 
 export default class AccountsRegisterCommand extends Command {
   static description: string = `Register a GCP account
-Register a GCP account
 `;
 
   static examples: Array<string> = [
