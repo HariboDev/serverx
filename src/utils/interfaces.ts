@@ -18,6 +18,11 @@ export interface IGcpAccountCredentials {
   credentialsFile: string;
 }
 
+export interface IAwsCredentialsFile {
+  "Access key ID": string;
+  "Secret access key": string;
+}
+
 export interface IKeyObject {
   keyDir: string;
 }
