@@ -24,7 +24,7 @@
     "@oclif/plugin-help": "^5.1.12",
     "@oclif/plugin-not-found": "^2.3.1",
     "@oclif/plugin-warn-if-update-available": "^2.0.4",
-    "@types/inquirer": "^8.2.0",
+    "@types/inquirer": "^8.2.1",
     "aws-sdk": "^2.1090.0",
     "axios": "^0.26.1",
     "chalk": "^2.4.2",
