@@ -1,7 +1,7 @@
 import { Command } from "@oclif/core";
-import { isPortReachable, readJsonFile, writeJsonFile } from "../../utils/utils";
+import { isPortReachable, readJsonFile, writeJsonFile } from "../../../utils/utils";
 const inquirer = require("inquirer");
-import { IInstance, IInstancesData } from "../../utils/interfaces";
+import { IInstance, IInstancesData } from "../../../utils/interfaces";
 import chalk from "chalk";
 
 export default class ServersModifyCommand extends Command {

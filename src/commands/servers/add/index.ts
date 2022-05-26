@@ -1,8 +1,8 @@
 import { Command } from "@oclif/core";
 import inquirer from "inquirer";
-import { isPortReachable } from "../../utils/utils";
-import { IInstance, IInstancesData } from "../../utils/interfaces";
-import { readJsonFile, writeJsonFile } from "../../utils/utils";
+import { isPortReachable } from "../../../utils/utils";
+import { IInstance, IInstancesData } from "../../../utils/interfaces";
+import { readJsonFile, writeJsonFile } from "../../../utils/utils";
 const path = require("path");
 
 export default class ServersAddCommand extends Command {

@@ -23,7 +23,7 @@ export default async function getAWS(flags: FlagInput<any>, config: Config): Pro
       return flags.account.toString().split(",").includes(account.awsAccountName);
     });
 
-  if (JSON.parse(flags["no-refresh"].toString())) {
+  if (JSON.parse(flags["use-cache"].toString())) {
     const instances: IInstancesData = {
       aws: instancesData.aws.filter((instance: IInstance) => {
         return accountsToSearch.some((account: IAwsAccountCredentials) => {

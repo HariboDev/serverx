@@ -35,8 +35,8 @@ Gathers up self-managed servers and displays summaries in a table
         "sa-east-1"
       ]
     }),
-    "no-refresh": Flags.boolean({
-      description: "Don't refresh the cache of known servers",
+    "use-cache": Flags.boolean({
+      description: "Use the local instances cache file",
       default: false
     })
   };

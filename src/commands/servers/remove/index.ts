@@ -1,8 +1,8 @@
 import { Command } from "@oclif/core";
 import chalk from "chalk";
-import { readJsonFile, writeJsonFile } from "../../utils/utils";
+import { readJsonFile, writeJsonFile } from "../../../utils/utils";
 const inquirer = require("inquirer");
-import { IInstance, IInstancesData } from "../../utils/interfaces";
+import { IInstance, IInstancesData } from "../../../utils/interfaces";
 
 export default class ServersRemoveCommand extends Command {
   static description: string = `Remove a self-managed server
