@@ -9,8 +9,8 @@ import sshUtil from "../../utils/ssh";
 import { isPortReachable, readJsonFile } from "../../utils/utils";
 
 export default class ConnectCommand extends Command {
-  static description: string = `Connect to a server with SSH
-Connect to a server with SSH using either the instance name or address.\nAbility to override username, key directory, key file and port.
+  static description: string = `Connect to an AWS server with SSH
+Connect to an AWS server with SSH using either the instance name or address.\nAbility to override username, key directory, key file and port.
 `;
 
   static flags: FlagInput<any> = {
@@ -54,6 +54,15 @@ Connect to a server with SSH using either the instance name or address.\nAbility
       }
 
       if (!instanceToConnect) {
+        for (const instance of instancesData.gcp) {
+          if (instance.name === flags.name) {
+            instanceToConnect = instance;
+            break;
+          }
+        }
+      }
+
+      if (!instanceToConnect) {
         for (const instance of instancesData.self) {
           if (instance.name === flags.name) {
             instanceToConnect = instance;
@@ -70,6 +79,14 @@ Connect to a server with SSH using either the instance name or address.\nAbility
       for (const instance of instancesData.aws) {
         if (instance.address === flags.address) {
           instanceToConnect = instance;
+        }
+      }
+
+      if (!instanceToConnect) {
+        for (const instance of instancesData.gcp) {
+          if (instance.address === flags.address) {
+            instanceToConnect = instance;
+          }
         }
       }
 
@@ -114,6 +131,15 @@ Connect to a server with SSH using either the instance name or address.\nAbility
       }
     }
 
+    if (instancesData.gcp.includes(instanceToConnect)) {
+      if (!flags.username) {
+        console.log(`${chalk.red("[ERROR]")} You must provide a username for GCP instances`);
+        return;
+      }
+
+      instanceToConnect.username = flags.username;
+    }
+
     await this.connect(instanceToConnect, flags, configData);
   }
 
@@ -124,7 +150,7 @@ Connect to a server with SSH using either the instance name or address.\nAbility
         type: "password",
         name: "password",
         message: `Enter password for ${username}@${instanceToConnect.address}:${flags.port}`,
-        when: flags.password || !instanceToConnect.keyPair,
+        when: flags.password || (!instanceToConnect.keyPair && !flags.key),
         validate: (input: string) => {
           if (input === "") {
             return "Password cannot be empty";

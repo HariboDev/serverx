@@ -17,7 +17,7 @@ export default async function getSelf(flags: FlagInput<any>, config: Config): Pr
     return;
   }
 
-  if (JSON.parse(flags["no-refresh"].toString())) {
+  if (JSON.parse(flags["use-cache"].toString())) {
     const instances: IInstancesData = {
       self: instancesData.self.filter((instance: IInstance) => {
         return (flags.region.toString() === "all" ||

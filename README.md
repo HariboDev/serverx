@@ -39,7 +39,8 @@ USAGE
 * [`serverx accounts modify aws`](#serverx-accounts-modify-aws)
 * [`serverx accounts modify gcp`](#serverx-accounts-modify-gcp)
 * [`serverx accounts register ACTION`](#serverx-accounts-register-action)
-* [`serverx accounts register aws`](#serverx-accounts-register-aws)
+* [`serverx accounts register aws [ACTION]`](#serverx-accounts-register-aws-action)
+* [`serverx accounts register aws import`](#serverx-accounts-register-aws-import)
 * [`serverx accounts register gcp`](#serverx-accounts-register-gcp)
 * [`serverx autocomplete [SHELL]`](#serverx-autocomplete-shell)
 * [`serverx commands`](#serverx-commands)
@@ -54,7 +55,9 @@ USAGE
 * [`serverx servers list self`](#serverx-servers-list-self)
 * [`serverx servers modify`](#serverx-servers-modify)
 * [`serverx servers remove`](#serverx-servers-remove)
-* [`serverx update`](#serverx-update)
+* [`serverx update ACTION`](#serverx-update-action)
+* [`serverx update aws`](#serverx-update-aws)
+* [`serverx update gcp`](#serverx-update-gcp)
 
 ## `serverx accounts ACTION`
 
@@ -84,7 +87,7 @@ EXAMPLES
   $ serverx accounts modify
 ```
 
-_See code: [dist/commands/accounts/index.ts](https://github.com/HariboDev/serverx/blob/v0.0.0/dist/commands/accounts/index.ts)_
+_See code: [dist/commands/accounts/index.js](https://github.com/HariboDev/serverx/blob/v0.0.0/dist/commands/accounts/index.js)_
 
 ## `serverx accounts deregister ACTION`
 
@@ -301,13 +304,16 @@ EXAMPLES
   $ serverx accounts register gcp
 ```
 
-## `serverx accounts register aws`
+## `serverx accounts register aws [ACTION]`
 
 Register an AWS account
 
 ```
 USAGE
-  $ serverx accounts register aws [-d]
+  $ serverx accounts register aws [ACTION] [-d]
+
+ARGUMENTS
+  ACTION  (import) Register AWS accounts
 
 FLAGS
   -d, --detail  Display extra account details
@@ -315,12 +321,36 @@ FLAGS
 DESCRIPTION
   Register an AWS account
 
-  Register an AWS account
+EXAMPLES
+  $ serverx accounts register aws
+
+  $ serverx accounts register aws --detail
+
+  $ serverx accounts register aws import
+```
+
+## `serverx accounts register aws import`
+
+Register an AWS account by importing
+
+```
+USAGE
+  $ serverx accounts register aws import [-d]
+
+FLAGS
+  -d, --detail  Display extra account details
+
+DESCRIPTION
+  Register an AWS account by importing
+
+  Register an AWS account by importing an existing credentials file
 
 EXAMPLES
   $ serverx accounts register aws
 
   $ serverx accounts register aws --detail
+
+  $ serverx accounts register aws import
 ```
 
 ## `serverx accounts register gcp`
@@ -332,8 +362,6 @@ USAGE
   $ serverx accounts register gcp
 
 DESCRIPTION
-  Register a GCP account
-
   Register a GCP account
 
 EXAMPLES
@@ -417,11 +445,11 @@ EXAMPLES
   $ serverx configure
 ```
 
-_See code: [dist/commands/configure/index.ts](https://github.com/HariboDev/serverx/blob/v0.0.0/dist/commands/configure/index.ts)_
+_See code: [dist/commands/configure/index.js](https://github.com/HariboDev/serverx/blob/v0.0.0/dist/commands/configure/index.js)_
 
 ## `serverx connect`
 
-Connect to a server with SSH
+Connect to an AWS server with SSH
 
 ```
 USAGE
@@ -437,14 +465,14 @@ FLAGS
   -u, --username=<value>   Override connection username
 
 DESCRIPTION
-  Connect to a server with SSH
+  Connect to an AWS server with SSH
 
-  Connect to a server with SSH using either the instance name or address.
+  Connect to an AWS server with SSH using either the instance name or address.
 
   Ability to override username, key directory, key file and port.
 ```
 
-_See code: [dist/commands/connect/index.ts](https://github.com/HariboDev/serverx/blob/v0.0.0/dist/commands/connect/index.ts)_
+_See code: [dist/commands/connect/index.js](https://github.com/HariboDev/serverx/blob/v0.0.0/dist/commands/connect/index.js)_
 
 ## `serverx help [COMMAND]`
 
@@ -492,7 +520,7 @@ EXAMPLES
   $ serverx servers modify
 ```
 
-_See code: [dist/commands/servers/index.ts](https://github.com/HariboDev/serverx/blob/v0.0.0/dist/commands/servers/index.ts)_
+_See code: [dist/commands/servers/index.js](https://github.com/HariboDev/serverx/blob/v0.0.0/dist/commands/servers/index.js)_
 
 ## `serverx servers add`
 
@@ -546,7 +574,7 @@ USAGE
   $ serverx servers list aws [-r
     us-east-1|us-east-2|us-west-1|us-west-2|ap-south-1|ap-northeast-1|ap-northeast-2|ap-southeast-1|ap-southeast-2|ca-ce
     ntral-1|eu-central-1|eu-west-1|eu-west-2|eu-west-3|eu-north-1|sa-east-1] [-s
-    pending|running|stopping|stopped|shutting-down|terminated] [-a <value>] [--no-refresh]
+    pending|running|stopping|stopped|shutting-down|terminated] [-a <value>] [--use-cache]
 
 FLAGS
   -a, --account=<value>...  [default: all] Only get servers from a specific account(s)
@@ -556,7 +584,7 @@ FLAGS
                             h-1|sa-east-1>
   -s, --state=<option>...   [default: all] Only get servers of in a specific state(s)
                             <options: pending|running|stopping|stopped|shutting-down|terminated>
-  --no-refresh              Don't refresh the cache of known servers
+  --use-cache               Use the local instances cache file
 
 DESCRIPTION
   Display AWS servers
@@ -575,14 +603,14 @@ USAGE
     outheast2|australia-southeast1|europe-central2|europe-north1|europe-west1|europe-west2|europe-west3|europe-west4|eur
     ope-west6|northamerica-northeast1|northamerica-northeast2|southamerica-east1|southamerica-west1|us-central1|us-east1
     |us-east4|us-west1|us-west2|us-west3|us-west4] [-s pending|running|stopping|stopped|shutting-down|terminated] [-a
-    <value>] [--no-refresh]
+    <value>] [--use-cache]
 
 FLAGS
   -a, --account=<value>...
       [default: all] Only get servers from a specific account(s)
 
   -r, --region=<option>...
-      [default: all] Only get servers in a specific region(s)
+      [default: all] Only get servers in a specific regions(s)
       <options: asia-east1|asia-east2|asia-northeast1|asia-northeast2|asia-northeast3|asia-south1|asia-south2|asia-southea
       st1|asia-southeast2|australia-southeast1|europe-central2|europe-north1|europe-west1|europe-west2|europe-west3|europe
       -west4|europe-west6|northamerica-northeast1|northamerica-northeast2|southamerica-east1|southamerica-west1|us-central
@@ -592,8 +620,8 @@ FLAGS
       [default: all] Only get servers of in a specific state(s)
       <options: pending|running|stopping|stopped|shutting-down|terminated>
 
-  --no-refresh
-      Don't refresh the cache of known servers
+  --use-cache
+      Use the local instances cache file
 
 DESCRIPTION
   GCP
@@ -609,14 +637,14 @@ Display self-managed servers
 USAGE
   $ serverx servers list self [-r
     us-east-1|us-east-2|us-west-1|us-west-2|ap-south-1|ap-northeast-1|ap-northeast-2|ap-southeast-1|ap-southeast-2|ca-ce
-    ntral-1|eu-central-1|eu-west-1|eu-west-2|eu-west-3|eu-north-1|sa-east-1] [--no-refresh]
+    ntral-1|eu-central-1|eu-west-1|eu-west-2|eu-west-3|eu-north-1|sa-east-1] [--use-cache]
 
 FLAGS
   -r, --region=<option>...  [default: all] Only get servers in a specific region(s)
                             <options: us-east-1|us-east-2|us-west-1|us-west-2|ap-south-1|ap-northeast-1|ap-northeast-2|a
                             p-southeast-1|ap-southeast-2|ca-central-1|eu-central-1|eu-west-1|eu-west-2|eu-west-3|eu-nort
                             h-1|sa-east-1>
-  --no-refresh              Don't refresh the cache of known servers
+  --use-cache               Use the local instances cache file
 
 DESCRIPTION
   Display self-managed servers
@@ -658,13 +686,39 @@ EXAMPLES
   $ serverx servers remove
 ```
 
-## `serverx update`
+## `serverx update ACTION`
+
+Update security group and firewall rules
+
+```
+USAGE
+  $ serverx update [ACTION]
+
+ARGUMENTS
+  ACTION  (aws|gcp) Update AWS and GCP rules
+
+DESCRIPTION
+  Update security group and firewall rules
+
+  Update security group and firewall rules within AWS and GCP
+
+EXAMPLES
+  $ serverx update
+
+  $ serverx update aws
+
+  $ serverx update gcp
+```
+
+_See code: [dist/commands/update/index.js](https://github.com/HariboDev/serverx/blob/v0.0.0/dist/commands/update/index.js)_
+
+## `serverx update aws`
 
 Update security groups with your new public IP
 
 ```
 USAGE
-  $ serverx update [-r
+  $ serverx update aws [-r
     us-east-1|us-east-2|us-west-1|us-west-2|ap-south-1|ap-northeast-1|ap-northeast-2|ap-southeast-1|ap-southeast-2|ca-ce
     ntral-1|eu-central-1|eu-west-1|eu-west-2|eu-west-3|eu-north-1|sa-east-1]
 
@@ -682,10 +736,27 @@ DESCRIPTION
 EXAMPLES
   $ serverx update
 
-  $ serverx update --region eu-west-1
+  $ serverx update aws
 
-  $ serverx update --region eu-west-1 eu-west-1
+  $ serverx update aws --region eu-west-1
 ```
 
-_See code: [dist/commands/update/index.ts](https://github.com/HariboDev/serverx/blob/v0.0.0/dist/commands/update/index.ts)_
+## `serverx update gcp`
+
+Update firewall rules and cloud armor with your new public IP
+
+```
+USAGE
+  $ serverx update gcp
+
+DESCRIPTION
+  Update firewall rules and cloud armor with your new public IP
+
+  Checks if your public IP has changed and updates relevant GCP firewall rules and cloud armor policies
+
+EXAMPLES
+  $ serverx update
+
+  $ serverx update gcp
+```
 <!-- commandsstop -->

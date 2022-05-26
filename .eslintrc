@@ -39,12 +39,6 @@
       "error",
       6
     ],
-    "complexity": [
-      "error",
-      {
-        "max": 30
-      }
-    ],
     "max-params": [
       "error",
       10
@@ -53,6 +47,7 @@
     "@typescript-eslint/no-var-requires": "off",
     "unicorn/prefer-module": "off",
     "unicorn/prefer-node-protocol": "off",
-    "@typescript-eslint/no-inferrable-types": "off"
+    "@typescript-eslint/no-inferrable-types": "off",
+    "complexity": "off"
   }
 }

@@ -55,8 +55,8 @@ Gathers up AWS servers and displays summaries in a table
       multiple: true,
       default: "all"
     }),
-    "no-refresh": Flags.boolean({
-      description: "Don't refresh the cache of known servers",
+    "use-cache": Flags.boolean({
+      description: "Use the local instances cache file",
       default: false
     })
   };

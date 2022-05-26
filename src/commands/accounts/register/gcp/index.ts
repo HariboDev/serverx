@@ -1,8 +1,8 @@
 import { Command } from "@oclif/core";
-import { readJsonFile, writeJsonFile } from "../../../utils/utils";
+import { readJsonFile, writeJsonFile } from "../../../../utils/utils";
 const inquirer = require("inquirer");
-import { IConfigData, IGcpAccountCredentials } from "../../../utils/interfaces";
-import listGcpAccounts from "../../../utils/list-accounts/gcp";
+import { IConfigData, IGcpAccountCredentials } from "../../../../utils/interfaces";
+import listGcpAccounts from "../../../../utils/list-accounts/gcp";
 const fs = require("fs");
 const path = require("path");
 
