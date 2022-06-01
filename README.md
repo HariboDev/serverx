@@ -19,7 +19,7 @@ $ npm install -g serverx
 $ serverx COMMAND
 running command...
 $ serverx (--version)
-serverx/0.0.0 linux-x64 node-v16.13.2
+serverx/1.0.0 linux-x64 node-v16.13.2
 $ serverx --help [COMMAND]
 USAGE
   $ serverx COMMAND
@@ -29,16 +29,16 @@ USAGE
 # Commands
 <!-- commands -->
 * [`serverx accounts ACTION`](#serverx-accounts-action)
-* [`serverx accounts deregister ACTION`](#serverx-accounts-deregister-action)
+* [`serverx accounts deregister TYPE`](#serverx-accounts-deregister-type)
 * [`serverx accounts deregister aws`](#serverx-accounts-deregister-aws)
 * [`serverx accounts deregister gcp`](#serverx-accounts-deregister-gcp)
-* [`serverx accounts list ACTION`](#serverx-accounts-list-action)
+* [`serverx accounts list TYPE`](#serverx-accounts-list-type)
 * [`serverx accounts list aws`](#serverx-accounts-list-aws)
 * [`serverx accounts list gcp`](#serverx-accounts-list-gcp)
-* [`serverx accounts modify ACTION`](#serverx-accounts-modify-action)
+* [`serverx accounts modify TYPE`](#serverx-accounts-modify-type)
 * [`serverx accounts modify aws`](#serverx-accounts-modify-aws)
 * [`serverx accounts modify gcp`](#serverx-accounts-modify-gcp)
-* [`serverx accounts register ACTION`](#serverx-accounts-register-action)
+* [`serverx accounts register TYPE`](#serverx-accounts-register-type)
 * [`serverx accounts register aws [ACTION]`](#serverx-accounts-register-aws-action)
 * [`serverx accounts register aws import`](#serverx-accounts-register-aws-import)
 * [`serverx accounts register gcp`](#serverx-accounts-register-gcp)
@@ -49,13 +49,13 @@ USAGE
 * [`serverx help [COMMAND]`](#serverx-help-command)
 * [`serverx servers ACTION`](#serverx-servers-action)
 * [`serverx servers add`](#serverx-servers-add)
-* [`serverx servers list ACTION`](#serverx-servers-list-action)
+* [`serverx servers list TYPE`](#serverx-servers-list-type)
 * [`serverx servers list aws`](#serverx-servers-list-aws)
 * [`serverx servers list gcp`](#serverx-servers-list-gcp)
 * [`serverx servers list self`](#serverx-servers-list-self)
 * [`serverx servers modify`](#serverx-servers-modify)
 * [`serverx servers remove`](#serverx-servers-remove)
-* [`serverx update ACTION`](#serverx-update-action)
+* [`serverx update TYPE`](#serverx-update-type)
 * [`serverx update aws`](#serverx-update-aws)
 * [`serverx update gcp`](#serverx-update-gcp)
 
@@ -87,18 +87,18 @@ EXAMPLES
   $ serverx accounts modify
 ```
 
-_See code: [dist/commands/accounts/index.js](https://github.com/HariboDev/serverx/blob/v0.0.0/dist/commands/accounts/index.js)_
+_See code: [dist/commands/accounts/index.js](https://github.com/HariboDev/serverx/blob/v1.0.0/dist/commands/accounts/index.js)_
 
-## `serverx accounts deregister ACTION`
+## `serverx accounts deregister TYPE`
 
 Deregister an account
 
 ```
 USAGE
-  $ serverx accounts deregister [ACTION]
+  $ serverx accounts deregister [TYPE]
 
 ARGUMENTS
-  ACTION  (aws|gcp) List registered AWS or GCP accounts
+  TYPE  (aws|gcp) List registered AWS or GCP accounts
 
 DESCRIPTION
   Deregister an account
@@ -152,16 +152,16 @@ EXAMPLES
   $ serverx accounts deregister gcp
 ```
 
-## `serverx accounts list ACTION`
+## `serverx accounts list TYPE`
 
 List registered accounts
 
 ```
 USAGE
-  $ serverx accounts list [ACTION]
+  $ serverx accounts list [TYPE]
 
 ARGUMENTS
-  ACTION  (aws|gcp) List registered AWS or GCP accounts
+  TYPE  (aws|gcp) List registered AWS or GCP accounts
 
 DESCRIPTION
   List registered accounts
@@ -215,16 +215,16 @@ EXAMPLES
   $ serverx accounts list gcp
 ```
 
-## `serverx accounts modify ACTION`
+## `serverx accounts modify TYPE`
 
 Modify a registered account
 
 ```
 USAGE
-  $ serverx accounts modify [ACTION]
+  $ serverx accounts modify [TYPE]
 
 ARGUMENTS
-  ACTION  (aws|gcp) Modify a registered AWS or GCP account
+  TYPE  (aws|gcp) Modify a registered AWS or GCP account
 
 DESCRIPTION
   Modify a registered account
@@ -280,16 +280,16 @@ EXAMPLES
   $ serverx accounts modify gcp --detail
 ```
 
-## `serverx accounts register ACTION`
+## `serverx accounts register TYPE`
 
 Register an account
 
 ```
 USAGE
-  $ serverx accounts register [ACTION]
+  $ serverx accounts register [TYPE]
 
 ARGUMENTS
-  ACTION  (aws|gcp) List registered AWS or GCP accounts
+  TYPE  (aws|gcp) List registered AWS or GCP accounts
 
 DESCRIPTION
   Register an account
@@ -395,7 +395,7 @@ EXAMPLES
   $ serverx autocomplete --refresh-cache
 ```
 
-_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v1.2.0/src/commands/autocomplete/index.ts)_
+_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v1.3.0/src/commands/autocomplete/index.ts)_
 
 ## `serverx commands`
 
@@ -445,7 +445,7 @@ EXAMPLES
   $ serverx configure
 ```
 
-_See code: [dist/commands/configure/index.js](https://github.com/HariboDev/serverx/blob/v0.0.0/dist/commands/configure/index.js)_
+_See code: [dist/commands/configure/index.js](https://github.com/HariboDev/serverx/blob/v1.0.0/dist/commands/configure/index.js)_
 
 ## `serverx connect`
 
@@ -453,7 +453,7 @@ Connect to an AWS server with SSH
 
 ```
 USAGE
-  $ serverx connect [-n <value>] [-a <value>] [-u <value>] [-d <value>] [-k <value>] [-p <value>] [-p]
+  $ serverx connect [-n <value>] [-a <value>] [-u <value>] [-d <value>] [-k <value>] [--port <value>] [-p]
 
 FLAGS
   -a, --address=<value>    Instance Address
@@ -461,8 +461,8 @@ FLAGS
   -k, --key=<value>        Override key file name
   -n, --name=<value>       Instance Name
   -p, --password           Ask for password
-  -p, --port=<value>       [default: 22] Override port
   -u, --username=<value>   Override connection username
+  --port=<value>           [default: 22] Override port
 
 DESCRIPTION
   Connect to an AWS server with SSH
@@ -472,7 +472,7 @@ DESCRIPTION
   Ability to override username, key directory, key file and port.
 ```
 
-_See code: [dist/commands/connect/index.js](https://github.com/HariboDev/serverx/blob/v0.0.0/dist/commands/connect/index.js)_
+_See code: [dist/commands/connect/index.js](https://github.com/HariboDev/serverx/blob/v1.0.0/dist/commands/connect/index.js)_
 
 ## `serverx help [COMMAND]`
 
@@ -496,22 +496,24 @@ _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.1
 
 ## `serverx servers ACTION`
 
-Manage self-managed servers
+List servers
 
 ```
 USAGE
   $ serverx servers [ACTION]
 
 ARGUMENTS
-  ACTION  (add|remove|modify) Add, remove or modify an account
+  ACTION  (list|add|remove|modify) Add, remove or modify an account
 
 DESCRIPTION
-  Manage self-managed servers
+  List servers
 
-  Add, remove or modify self-managed servers
+  List, add, remove or modify servers
 
 EXAMPLES
   $ serverx servers
+
+  $ serverx servers list
 
   $ serverx servers add
 
@@ -520,7 +522,7 @@ EXAMPLES
   $ serverx servers modify
 ```
 
-_See code: [dist/commands/servers/index.js](https://github.com/HariboDev/serverx/blob/v0.0.0/dist/commands/servers/index.js)_
+_See code: [dist/commands/servers/index.js](https://github.com/HariboDev/serverx/blob/v1.0.0/dist/commands/servers/index.js)_
 
 ## `serverx servers add`
 
@@ -539,21 +541,21 @@ EXAMPLES
   $ serverx servers add
 ```
 
-## `serverx servers list ACTION`
+## `serverx servers list TYPE`
 
 List servers
 
 ```
 USAGE
-  $ serverx servers list [ACTION]
+  $ serverx servers list [TYPE]
 
 ARGUMENTS
-  ACTION  (aws|gcp|self) List AWS, GCP and self-managed servers
+  TYPE  (aws|gcp|self) List AWS, GCP or self-managed servers
 
 DESCRIPTION
   List servers
 
-  List AWS, GCP and self-managed servers
+  List AWS, GCP or self-managed servers
 
 EXAMPLES
   $ serverx servers list
@@ -594,7 +596,7 @@ DESCRIPTION
 
 ## `serverx servers list gcp`
 
-GCP 
+Display GCP servers
 
 ```
 USAGE
@@ -624,7 +626,7 @@ FLAGS
       Use the local instances cache file
 
 DESCRIPTION
-  GCP
+  Display GCP servers
 
   Gathers up GCP servers and displays summaries in a table
 ```
@@ -635,16 +637,11 @@ Display self-managed servers
 
 ```
 USAGE
-  $ serverx servers list self [-r
-    us-east-1|us-east-2|us-west-1|us-west-2|ap-south-1|ap-northeast-1|ap-northeast-2|ap-southeast-1|ap-southeast-2|ca-ce
-    ntral-1|eu-central-1|eu-west-1|eu-west-2|eu-west-3|eu-north-1|sa-east-1] [--use-cache]
+  $ serverx servers list self [-r <value>] [--use-cache]
 
 FLAGS
-  -r, --region=<option>...  [default: all] Only get servers in a specific region(s)
-                            <options: us-east-1|us-east-2|us-west-1|us-west-2|ap-south-1|ap-northeast-1|ap-northeast-2|a
-                            p-southeast-1|ap-southeast-2|ca-central-1|eu-central-1|eu-west-1|eu-west-2|eu-west-3|eu-nort
-                            h-1|sa-east-1>
-  --use-cache               Use the local instances cache file
+  -r, --region=<value>...  [default: all] Only get servers in a specific region(s)
+  --use-cache              Use the local instances cache file
 
 DESCRIPTION
   Display self-managed servers
@@ -686,16 +683,16 @@ EXAMPLES
   $ serverx servers remove
 ```
 
-## `serverx update ACTION`
+## `serverx update TYPE`
 
 Update security group and firewall rules
 
 ```
 USAGE
-  $ serverx update [ACTION]
+  $ serverx update [TYPE]
 
 ARGUMENTS
-  ACTION  (aws|gcp) Update AWS and GCP rules
+  TYPE  (aws|gcp) Update AWS or GCP rules
 
 DESCRIPTION
   Update security group and firewall rules
@@ -710,7 +707,7 @@ EXAMPLES
   $ serverx update gcp
 ```
 
-_See code: [dist/commands/update/index.js](https://github.com/HariboDev/serverx/blob/v0.0.0/dist/commands/update/index.js)_
+_See code: [dist/commands/update/index.js](https://github.com/HariboDev/serverx/blob/v1.0.0/dist/commands/update/index.js)_
 
 ## `serverx update aws`
 
@@ -720,13 +717,18 @@ Update security groups with your new public IP
 USAGE
   $ serverx update aws [-r
     us-east-1|us-east-2|us-west-1|us-west-2|ap-south-1|ap-northeast-1|ap-northeast-2|ap-southeast-1|ap-southeast-2|ca-ce
-    ntral-1|eu-central-1|eu-west-1|eu-west-2|eu-west-3|eu-north-1|sa-east-1]
+    ntral-1|eu-central-1|eu-west-1|eu-west-2|eu-west-3|eu-north-1|sa-east-1] [-a <value>] [-f <value>] [-t <value>]
 
 FLAGS
+  -a, --account=<value>...  [default: all] Only update security groups in a specific account(s)
+  -f, --from=<value>        Only update security groups with this as its existing source IP address. Overrides the users
+                            actual old IP
   -r, --region=<option>...  [default: all] Only update security groups in a specific region(s)
                             <options: us-east-1|us-east-2|us-west-1|us-west-2|ap-south-1|ap-northeast-1|ap-northeast-2|a
                             p-southeast-1|ap-southeast-2|ca-central-1|eu-central-1|eu-west-1|eu-west-2|eu-west-3|eu-nort
                             h-1|sa-east-1>
+  -t, --to=<value>          Only update security groups with this as its new source IP address. Overrides users actual
+                            current IP
 
 DESCRIPTION
   Update security groups with your new public IP
@@ -747,7 +749,30 @@ Update firewall rules and cloud armor with your new public IP
 
 ```
 USAGE
-  $ serverx update gcp
+  $ serverx update gcp [-r
+    asia-east1|asia-east2|asia-northeast1|asia-northeast2|asia-northeast3|asia-south1|asia-south2|asia-southeast1|asia-s
+    outheast2|australia-southeast1|europe-central2|europe-north1|europe-west1|europe-west2|europe-west3|europe-west4|eur
+    ope-west6|northamerica-northeast1|northamerica-northeast2|southamerica-east1|southamerica-west1|us-central1|us-east1
+    |us-east4|us-west1|us-west2|us-west3|us-west4] [-a <value>] [-f <value>] [-t <value>]
+
+FLAGS
+  -a, --account=<value>...
+      [default: all] Only update firewall and cloud armor armor rules in a specific account(s)
+
+  -f, --from=<value>
+      Only update firewall and cloud armor armor rules with this as its existing source IP address. Overrides the users
+      actual old IP
+
+  -r, --region=<option>...
+      [default: all] Only update firewall and cloud armor armor rules in a specific region(s)
+      <options: asia-east1|asia-east2|asia-northeast1|asia-northeast2|asia-northeast3|asia-south1|asia-south2|asia-southea
+      st1|asia-southeast2|australia-southeast1|europe-central2|europe-north1|europe-west1|europe-west2|europe-west3|europe
+      -west4|europe-west6|northamerica-northeast1|northamerica-northeast2|southamerica-east1|southamerica-west1|us-central
+      1|us-east1|us-east4|us-west1|us-west2|us-west3|us-west4>
+
+  -t, --to=<value>
+      Only update firewall and cloud armor armor rules with this as its new source IP address. Overrides users actual
+      current IP
 
 DESCRIPTION
   Update firewall rules and cloud armor with your new public IP

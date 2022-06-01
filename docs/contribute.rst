@@ -53,13 +53,13 @@ that a particular problem is affecting more than just the reporter.
 🛠️ Pull Requests
 =================
 
-A `pull request`_ is a way to suggest changes to AEP.
+A `pull request`_ is a way to suggest changes to ServerX.
 
 When opening a pull request, it must be accompanied by a complete pull request
 template.
 
 When we merge those changes, they will be available in the next release of
-AEP.
+ServerX.
 
 In general, follow the `fork-and-pull Git workflow`_:
 
