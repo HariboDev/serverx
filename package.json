@@ -1,7 +1,7 @@
 {
   "name": "serverx",
-  "version": "0.0.0",
-  "description": "Centrally manage AWS, GCP and self-managed servers and connet to them via SSH. Update security group, access control list, firewall and security policy rules with your new public IP.",
+  "version": "1.0.0",
+  "description": "Centrally manage AWS, GCP and self-managed servers and connect to them via SSH. Update security group, firewall and security policy rules with your new public IP.",
   "author": "HariboDev",
   "bin": {
     "serverx": "./bin/run"

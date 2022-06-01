@@ -7,8 +7,8 @@ import getGCP from "../../../utils/get/gcp";
 import { allGcpRegions } from "../../../utils/gcp-zones";
 
 export default class ListCommandGCP extends Command {
-  static description = `GCP 
-  Gathers up GCP servers and displays summaries in a table
+  static description = `Display GCP servers
+Gathers up GCP servers and displays summaries in a table
 `;
 
   static flags: FlagInput<any> = {

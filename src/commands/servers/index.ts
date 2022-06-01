@@ -1,8 +1,8 @@
 import { Command, Help } from "@oclif/core";
 
 export default class ServersCommand extends Command {
-  static description: string = `Manage self-managed servers
-Add, remove or modify self-managed servers
+  static description: string = `List servers
+List, add, remove or modify servers
 `;
 
   static args = [
@@ -10,12 +10,13 @@ Add, remove or modify self-managed servers
       name: "action",
       description: "Add, remove or modify an account",
       required: true,
-      options: ["add", "remove", "modify"]
+      options: ["list", "add", "remove", "modify"]
     }
   ];
 
   static examples: Array<string> = [
     "$ serverx servers",
+    "$ serverx servers list",
     "$ serverx servers add",
     "$ serverx servers remove",
     "$ serverx servers modify"

@@ -1,0 +1,43 @@
+---
+name: Improve Documentation
+about: Make a suggestion to improve our documentation
+title: ''
+labels: ["documentation"]
+assignees: HariboDev
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this documentation improvement form!
+  - type: input
+    id: contact
+    attributes:
+      label: Contact details
+      description: How can we get in touch with you if we need more info?
+      placeholder: ex. email@example.com
+    validations:
+      required: false
+  - type: textarea
+    id: article
+    attributes:
+      label: What article on server.haribodev.uk is affected?
+      description: Link to the article you'd like to see updated.
+      placeholder: https://serverx.haribodev.uk/contribute.html
+    validations:
+      required: true
+  - type: textarea
+    id: part
+    attributes:
+      label: What part(s) of the article would you like to see updated?
+      description: Give as much detail as you can to help us understand the change you want to see. Why should the docs be updated? What cases does it support? What is the expected outcome?
+      placeholder: Why should the docs be updated?
+    validations:
+      required: true
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Add any other context about the imrovement.
+      placeholder: Anything else?
+    validations:
+      required: false

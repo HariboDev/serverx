@@ -1,7 +1,7 @@
 ServerX
 =================
 
-Centrally manage AWS, GCP and self-managed servers and connect to them via SSH. Update security group, access control list, firewall and security policy rules with your new IP. 
+Centrally manage AWS, GCP and self-managed servers and connect to them via SSH. Update security group, firewall and security policy rules with your new IP. 
 
 [![Docs](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://serverx.haribodev.uk)
 [![Version](https://img.shields.io/npm/v/oclif-hello-world.svg)](https://npmjs.org/package/serverx)

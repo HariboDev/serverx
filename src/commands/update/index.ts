@@ -7,8 +7,8 @@ Update security group and firewall rules within AWS and GCP
 
   static args = [
     {
-      name: "action",
-      description: "Update AWS and GCP rules",
+      name: "type",
+      description: "Update AWS or GCP rules",
       required: true,
       options: ["aws", "gcp"]
     }

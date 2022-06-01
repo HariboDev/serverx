@@ -19,7 +19,7 @@ Connect to an AWS server with SSH using either the instance name or address.\nAb
     username: Flags.string({ char: "u", description: "Override connection username" }),
     directory: Flags.string({ char: "d", description: "Override key file directory" }),
     key: Flags.string({ char: "k", description: "Override key file name" }),
-    port: Flags.string({ char: "p", description: "Override port", default: "22" }),
+    port: Flags.string({ description: "Override port", default: "22" }),
     password: Flags.boolean({ char: "p", description: "Ask for password" })
   };
 

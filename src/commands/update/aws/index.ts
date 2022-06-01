@@ -35,6 +35,22 @@ Checks if your public IP has changed and updates relevant AWS security groups
         "eu-north-1",
         "sa-east-1"
       ]
+    }),
+    account: Flags.string({
+      char: "a",
+      description: "Only update security groups in a specific account(s)",
+      multiple: true,
+      default: "all"
+    }),
+    from: Flags.string({
+      char: "f",
+      description: "Only update security groups with this as its existing source IP address. Overrides the users actual old IP",
+      required: false
+    }),
+    to: Flags.string({
+      char: "t",
+      description: "Only update security groups with this as its new source IP address. Overrides users actual current IP",
+      required: false
     })
   }
 
@@ -53,30 +69,47 @@ Checks if your public IP has changed and updates relevant AWS security groups
       return;
     }
 
-    const checkResponse: IIPChange | undefined = await checkIpChanged(dataData);
+    let fromIp: string | undefined = flags.from;
+    let toIp: string | undefined = flags.to;
 
-    if (!checkResponse) {
-      return;
+    if (flags.from) {
+      fromIp = flags.from;
+    } else {
+      const checkResponse: IIPChange | undefined = await checkIpChanged(dataData);
+
+      if (!checkResponse) {
+        return;
+      }
+
+      fromIp = checkResponse.oldIp;
+      toIp = checkResponse.newIp;
     }
 
-    if (checkResponse.oldIp) {
+    if (fromIp && toIp) {
       const configData: IConfigData = await readJsonFile(this.config.configDir, "config");
 
       if (!configData) {
         return;
       }
 
-      for await (const account of configData.awsAccounts) {
+      const accountsToSearch: Array<IAwsAccountCredentials> = flags.account.toString() === "all" ?
+        configData.awsAccounts : configData.awsAccounts.filter((account: IAwsAccountCredentials) => {
+          return flags.account.toString().split(",").includes(account.awsAccountName);
+        });
+
+      for await (const account of accountsToSearch) {
         console.log(`${chalk.green("[INFO]")} Checking account: ${account.awsAccountName}`);
 
         const regions: Array<string> = flags.region.toString() === "all" ? (await getEnabledRegions(account)) : flags.region.toString().split(",");
 
         for await (const region of regions) {
-          await this.checkRegion(region, account, checkResponse.newIp, checkResponse.oldIp);
+          await this.checkRegion(region, account, toIp, fromIp);
         }
 
-        dataData.ip = checkResponse.newIp;
-        await writeJsonFile(this.config.dataDir, "data", JSON.stringify(dataData));
+        if (!flags.toIp) {
+          dataData.ip = toIp;
+          await writeJsonFile(this.config.dataDir, "data", JSON.stringify(dataData));
+        }
       }
     }
   }

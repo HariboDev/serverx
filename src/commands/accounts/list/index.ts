@@ -7,7 +7,7 @@ List registered AWS & GCP accounts
 
   static args = [
     {
-      name: "action",
+      name: "type",
       description: "List registered AWS or GCP accounts",
       required: true,
       options: ["aws", "gcp"]

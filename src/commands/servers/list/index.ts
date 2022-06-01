@@ -2,13 +2,13 @@ import { Command, Help } from "@oclif/core";
 
 export default class ListCommand extends Command {
   static description: string = `List servers
-List AWS, GCP and self-managed servers
+List AWS, GCP or self-managed servers
 `;
 
   static args = [
     {
-      name: "action",
-      description: "List AWS, GCP and self-managed servers",
+      name: "type",
+      description: "List AWS, GCP or self-managed servers",
       required: true,
       options: ["aws", "gcp", "self"]
     }

@@ -7,7 +7,7 @@ Modify a registered AWS or GCP account
 
   static args = [
     {
-      name: "action",
+      name: "type",
       description: "Modify a registered AWS or GCP account",
       required: true,
       options: ["aws", "gcp"]
