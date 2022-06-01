@@ -7,7 +7,7 @@ Register an AWS or GCP account
 
   static args = [
     {
-      name: "action",
+      name: "type",
       description: "List registered AWS or GCP accounts",
       required: true,
       options: ["aws", "gcp"]

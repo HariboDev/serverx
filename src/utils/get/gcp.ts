@@ -3,7 +3,7 @@ import { Config } from "@oclif/core";
 import { FlagInput } from "@oclif/core/lib/interfaces";
 import chalk from "chalk";
 import { allGcpRegions, getZones } from "../gcp-zones";
-import { IConfigData, IInstance, IInstancesData } from "../interfaces";
+import { IConfigData, IGcpAccountCredentials, IInstance, IInstancesData } from "../interfaces";
 import { isPortReachable, readJsonFile, writeJsonFile } from "../utils";
 
 export default async function getGCP(flags: FlagInput<any>, config: Config): Promise<any> {
@@ -18,6 +18,11 @@ export default async function getGCP(flags: FlagInput<any>, config: Config): Pro
   if (!instancesData) {
     return;
   }
+
+  const accountsToSearch: Array<IGcpAccountCredentials> = flags.account.toString() === "all" ?
+    configData.gcpAccounts : configData.gcpAccounts.filter((account: IGcpAccountCredentials) => {
+      return flags.account.toString().split(",").includes(account.gcpAccountName);
+    });
 
   if (JSON.parse(flags["use-cache"].toString())) {
     const instances: IInstancesData = {
@@ -36,7 +41,7 @@ export default async function getGCP(flags: FlagInput<any>, config: Config): Pro
 
   console.log(`${chalk.green("[INFO]")} Gathering GCP managed instances`);
 
-  for await (const account of configData.gcpAccounts) {
+  for await (const account of accountsToSearch) {
     console.log(`${chalk.green("[INFO]")} Checking account: ${account.gcpAccountName}`);
     process.env.GOOGLE_APPLICATION_CREDENTIALS = account.credentialsFile;
 

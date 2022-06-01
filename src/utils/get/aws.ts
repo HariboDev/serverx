@@ -74,7 +74,10 @@ async function checkRegions(account: IAwsAccountCredentials, flags: any, instanc
         RoleSessionName: "serverx"
       };
 
-      const creds = new AWS.EnvironmentCredentials("AWS");
+      const creds = new AWS.Credentials({
+        accessKeyId: account.awsAccessKey,
+        secretAccessKey: account.awsSecretAccessKey
+      });
 
       const sts: AWS.STS = new AWS.STS({
         credentials: creds,

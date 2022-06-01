@@ -15,25 +15,7 @@ Gathers up self-managed servers and displays summaries in a table
       char: "r",
       description: "Only get servers in a specific region(s)",
       multiple: true,
-      default: "all",
-      options: [
-        "us-east-1",
-        "us-east-2",
-        "us-west-1",
-        "us-west-2",
-        "ap-south-1",
-        "ap-northeast-1",
-        "ap-northeast-2",
-        "ap-southeast-1",
-        "ap-southeast-2",
-        "ca-central-1",
-        "eu-central-1",
-        "eu-west-1",
-        "eu-west-2",
-        "eu-west-3",
-        "eu-north-1",
-        "sa-east-1"
-      ]
+      default: "all"
     }),
     "use-cache": Flags.boolean({
       description: "Use the local instances cache file",
@@ -66,33 +48,6 @@ Gathers up self-managed servers and displays summaries in a table
 
     const instances: any = instancesData as any;
     for (const instance of instances.self) {
-      let stateChalk;
-      switch (instance.state) {
-        case "running": {
-          stateChalk = chalk.green(`${instance.state}`);
-          break;
-        }
-
-        case "stopping": {
-          stateChalk = chalk.yellow(`${instance.state}`);
-          break;
-        }
-
-        case "pending": {
-          stateChalk = chalk.yellow(`${instance.state}`);
-          break;
-        }
-
-        case "Unknown": {
-          stateChalk = chalk.grey(`${instance.state}`);
-          break;
-        }
-
-        default: {
-          stateChalk = chalk.red(`${instance.state}`);
-        }
-      }
-
       table.push([
         (instances.self.indexOf(instance)),
         (instance.name === "Unknown" ?
@@ -113,7 +68,6 @@ Gathers up self-managed servers and displays summaries in a table
           chalk.grey(`${instance.username}`) :
           chalk.white(`${instance.username}`)
         ),
-        stateChalk,
         (instance.accessible === true ?
           chalk.green(`${instance.accessible}`) :
           (instance.accessible === false ?
@@ -124,10 +78,6 @@ Gathers up self-managed servers and displays summaries in a table
         (instance.location === "Unknown" ?
           chalk.grey(`${instance.location}`) :
           chalk.white(`${instance.location}`)
-        ),
-        (instance.account === "Unknown" ?
-          chalk.grey(`${instance.account}`) :
-          chalk.white(`${instance.account}`)
         ),
         chalk.white("Self")
       ]);
