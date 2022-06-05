@@ -6,7 +6,7 @@ ServerX can be installed using NPM:
 
 .. code-block:: console
 
-   $ npm install --global serverx
+   $ npm install --global @haribodev/serverx
 
 To check the tool has been installed correctly, execute the following command and
 you should see the command's help output:

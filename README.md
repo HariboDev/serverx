@@ -3,10 +3,9 @@ ServerX
 
 Centrally manage AWS, GCP and self-managed servers and connect to them via SSH. Update security group, firewall and security policy rules with your new IP. 
 
-[![Docs](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://serverx.haribodev.uk)
-[![Version](https://img.shields.io/npm/v/oclif-hello-world.svg)](https://npmjs.org/package/serverx)
-[![Downloads/week](https://img.shields.io/npm/dw/oclif-hello-world.svg)](https://npmjs.org/package/serverx)
-[![License](https://img.shields.io/npm/l/oclif-hello-world.svg)](https://github.com/HariboDev/serverx/blob/main/package.json)
+[![Version](https://img.shields.io/npm/v/@haribodev/serverx.svg)](https://npmjs.org/package/@haribodev/serverx)
+[![Downloads/week](https://img.shields.io/npm/dw/@haribodev/serverx.svg)](https://npmjs.org/package/@haribodev/serverx)
+[![License](https://img.shields.io/npm/l/@haribodev/serverx.svg)](https://github.com/HariboDev/serverx/blob/main/LICENSE)
 
 <!-- toc -->
 * [Usage](#usage)
@@ -15,11 +14,11 @@ Centrally manage AWS, GCP and self-managed servers and connect to them via SSH. 
 # Usage
 <!-- usage -->
 ```sh-session
-$ npm install -g serverx
+$ npm install -g @haribodev/serverx
 $ serverx COMMAND
 running command...
 $ serverx (--version)
-serverx/1.0.0 linux-x64 node-v16.13.2
+@haribodev/serverx/1.0.0 linux-x64 node-v16.13.2
 $ serverx --help [COMMAND]
 USAGE
   $ serverx COMMAND
