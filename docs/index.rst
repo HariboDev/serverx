@@ -35,4 +35,4 @@
    contribute
    changelog
    GitHub <https://github.com/HariboDev/serverx>
-   NPM <https://www.npmjs.com/package/serverx>
+   NPM <https://www.npmjs.com/package/@haribodev/serverx>
