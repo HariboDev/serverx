@@ -1,4 +1,4 @@
-ServerX
+@haribodev/serverx
 =================
 
 Centrally manage AWS, GCP and self-managed servers and connect to them via SSH. Update security group, firewall and security policy rules with your new IP. 
@@ -18,7 +18,7 @@ $ npm install -g @haribodev/serverx
 $ serverx COMMAND
 running command...
 $ serverx (--version)
-@haribodev/serverx/1.0.0 linux-x64 node-v16.13.2
+@haribodev/serverx/1.0.1 linux-x64 node-v16.13.2
 $ serverx --help [COMMAND]
 USAGE
   $ serverx COMMAND
@@ -86,7 +86,7 @@ EXAMPLES
   $ serverx accounts modify
 ```
 
-_See code: [dist/commands/accounts/index.js](https://github.com/HariboDev/serverx/blob/v1.0.0/dist/commands/accounts/index.js)_
+_See code: [dist/commands/accounts/index.js](https://github.com/HariboDev/serverx/blob/v1.0.1/dist/commands/accounts/index.js)_
 
 ## `serverx accounts deregister TYPE`
 
@@ -444,7 +444,7 @@ EXAMPLES
   $ serverx configure
 ```
 
-_See code: [dist/commands/configure/index.js](https://github.com/HariboDev/serverx/blob/v1.0.0/dist/commands/configure/index.js)_
+_See code: [dist/commands/configure/index.js](https://github.com/HariboDev/serverx/blob/v1.0.1/dist/commands/configure/index.js)_
 
 ## `serverx connect`
 
@@ -471,7 +471,7 @@ DESCRIPTION
   Ability to override username, key directory, key file and port.
 ```
 
-_See code: [dist/commands/connect/index.js](https://github.com/HariboDev/serverx/blob/v1.0.0/dist/commands/connect/index.js)_
+_See code: [dist/commands/connect/index.js](https://github.com/HariboDev/serverx/blob/v1.0.1/dist/commands/connect/index.js)_
 
 ## `serverx help [COMMAND]`
 
@@ -521,7 +521,7 @@ EXAMPLES
   $ serverx servers modify
 ```
 
-_See code: [dist/commands/servers/index.js](https://github.com/HariboDev/serverx/blob/v1.0.0/dist/commands/servers/index.js)_
+_See code: [dist/commands/servers/index.js](https://github.com/HariboDev/serverx/blob/v1.0.1/dist/commands/servers/index.js)_
 
 ## `serverx servers add`
 
@@ -706,7 +706,7 @@ EXAMPLES
   $ serverx update gcp
 ```
 
-_See code: [dist/commands/update/index.js](https://github.com/HariboDev/serverx/blob/v1.0.0/dist/commands/update/index.js)_
+_See code: [dist/commands/update/index.js](https://github.com/HariboDev/serverx/blob/v1.0.1/dist/commands/update/index.js)_
 
 ## `serverx update aws`
 
