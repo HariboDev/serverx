@@ -11,7 +11,15 @@ is based on `Keep a Changelog`_ and this project adheres to `Semantec Versioning
 .. _Keep a Changelog: https://keepachangelog.com/en/1.0.0/
 .. _Semantec Versioning: https://semver.org/
 
-v1.0.0 - YYYY-MM-DD [:latest:`LATEST`]
+v1.0.1 - 2022-06-05 [:latest:`LATEST`]
+==============================================
+
+Changes:
+
+- Updated README.md
+- Updated installation documentation
+
+v1.0.0 - 2022-06-05
 ==============================================
 
 Initial public release
