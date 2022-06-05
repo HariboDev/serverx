@@ -1,12 +1,12 @@
 {
   "name": "@haribodev/serverx",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Centrally manage AWS, GCP and self-managed servers and connect to them via SSH. Update security group, firewall and security policy rules with your new public IP.",
   "author": "HariboDev",
   "bin": {
     "serverx": "./bin/run"
   },
-  "homepage": "https://github.com/HariboDev/serverx",
+  "homepage": "https://serverx.haribodev.uk",
   "license": "MIT",
   "main": "dist/index.js",
   "repository": "HariboDev/serverx",
