@@ -1,0 +1,44 @@
+---
+
+name: Deploy docs update
+on:
+  push:
+    branches:
+      - main
+    paths: 
+      - docs/**
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout latest commit
+        uses: actions/checkout@master
+
+      - name: Install dependencies
+        run: |
+          cd docs
+          sudo pip3 install -U sphinx
+          sudo pip3 install -r requirements.txt
+          make clean
+          make html
+
+      - name: Upload docs HTML build to S3
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --delete
+        env:
+          SOURCE_DIR: docs/_build/html
+          DEST_DIR: docs/
+          AWS_REGION: eu-west-1
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Invalidate CloudFront Cache
+        uses: chetan/invalidate-cloudfront-action@master
+        env:
+          DISTRIBUTION: ${{ secrets.DISTRIBUTION }}
+          PATHS: /docs
+          AWS_REGION: us-east-1
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
