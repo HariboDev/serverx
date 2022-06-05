@@ -1,4 +1,4 @@
-ServerX
+@haribodev/serverx
 ===========================
 
 Centrally manage AWS, GCP and self-managed servers and connect to them via SSH. Update security group, firewall and security policy rules with your new public IP.
