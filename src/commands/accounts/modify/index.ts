@@ -1,9 +1,12 @@
 import { Command, Help } from "@oclif/core";
+import { FlagInput } from "@oclif/core/lib/interfaces";
 
 export default class AccountsModifyCommand extends Command {
   static description: string = `Modify a registered account
 Modify a registered AWS or GCP account
 `;
+
+  static flags: FlagInput<any> = {};
 
   static args = [
     {

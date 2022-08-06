@@ -1,9 +1,12 @@
 import { Command, Help } from "@oclif/core";
+import { FlagInput } from "@oclif/core/lib/interfaces";
 
 export default class AccountsDeregisterCommand extends Command {
   static description: string = `Deregister an account
 Deregister an AWS or GCP account
 `;
+
+  static flags: FlagInput<any> = {};
 
   static args = [
     {

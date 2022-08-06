@@ -1,9 +1,12 @@
 import { Command, Help } from "@oclif/core";
+import { FlagInput } from "@oclif/core/lib/interfaces";
 
 export default class UpdateCommand extends Command {
   static description: string = `Update security group and firewall rules
 Update security group and firewall rules within AWS and GCP
 `;
+
+  static flags: FlagInput<any> = {};
 
   static args = [
     {

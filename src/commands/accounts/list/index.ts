@@ -1,9 +1,12 @@
 import { Command, Help } from "@oclif/core";
+import { FlagInput } from "@oclif/core/lib/interfaces";
 
 export default class AccountsListCommand extends Command {
   static description: string = `List registered accounts
 List registered AWS & GCP accounts
 `;
+
+  static flags: FlagInput<any> = {};
 
   static args = [
     {

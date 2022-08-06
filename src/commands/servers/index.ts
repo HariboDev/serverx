@@ -1,9 +1,12 @@
 import { Command, Help } from "@oclif/core";
+import { FlagInput } from "@oclif/core/lib/interfaces";
 
 export default class ServersCommand extends Command {
   static description: string = `List servers
 List, add, remove or modify servers
 `;
+
+  static flags: FlagInput<any> = {};
 
   static args = [
     {
