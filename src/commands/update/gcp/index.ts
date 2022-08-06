@@ -35,6 +35,13 @@ Checks if your public IP has changed and updates relevant GCP firewall rules and
       char: "t",
       description: "Only update firewall and cloud armor armor rules with this as its new source IP address. Overrides users actual current IP",
       required: false
+    }),
+    save: Flags.boolean({
+      char: "s",
+      description: "Save your new IP address to your config file. Ideal for consecutive commands",
+      required: false,
+      default: true,
+      allowNo: true
     })
   }
 
@@ -154,11 +161,11 @@ Checks if your public IP has changed and updates relevant GCP firewall rules and
             }
           }
         }
+      }
 
-        if (!flags.toIp) {
-          dataData.ip = toIp;
-          await writeJsonFile(this.config.dataDir, "data", JSON.stringify(dataData));
-        }
+      if (!flags.toIp && flags.save) {
+        dataData.ip = toIp;
+        await writeJsonFile(this.config.dataDir, "data", JSON.stringify(dataData));
       }
     }
   }

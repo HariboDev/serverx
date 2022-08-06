@@ -51,6 +51,13 @@ Checks if your public IP has changed and updates relevant AWS security groups
       char: "t",
       description: "Only update security groups with this as its new source IP address. Overrides users actual current IP",
       required: false
+    }),
+    save: Flags.boolean({
+      char: "s",
+      description: "Save your new IP address to your config file. Ideal for consecutive commands",
+      required: false,
+      default: true,
+      allowNo: true
     })
   }
 
@@ -105,11 +112,11 @@ Checks if your public IP has changed and updates relevant AWS security groups
         for await (const region of regions) {
           await this.checkRegion(region, account, toIp, fromIp);
         }
+      }
 
-        if (!flags.toIp) {
-          dataData.ip = toIp;
-          await writeJsonFile(this.config.dataDir, "data", JSON.stringify(dataData));
-        }
+      if (!flags.toIp && flags.save) {
+        dataData.ip = toIp;
+        await writeJsonFile(this.config.dataDir, "data", JSON.stringify(dataData));
       }
     }
   }

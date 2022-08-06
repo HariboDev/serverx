@@ -92,6 +92,12 @@ Options
   * Description: Only update security group, firewall and cloud armor armor rules with this as its new source IP address. Overrides users actual current IP
   * Default: ``all``
 
+* ``--[no-]save | -s``
+
+  * Type: ``boolean``
+  * Description: Save your new IP address to your config file. Not ideal for consecutive commands
+  * Default: ``true``
+
 Examples
 ========
 
