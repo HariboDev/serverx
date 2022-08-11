@@ -11,7 +11,14 @@ is based on `Keep a Changelog`_ and this project adheres to `Semantec Versioning
 .. _Keep a Changelog: https://keepachangelog.com/en/1.0.0/
 .. _Semantec Versioning: https://semver.org/
 
-v1.1.0 - 2022-08-06 [:latest:`LATEST`]
+v1.1.1 - 2022-08-11 [:latest:`LATEST`]
+==============================================
+
+Fixes:
+
+- Fixed configure command not updating `config.json` file structure between versions.
+
+v1.1.0 - 2022-08-06
 ==============================================
 
 Additions:

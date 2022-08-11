@@ -44,6 +44,14 @@ Add accounts and customise serverx
         return;
       }
 
+      if (!Object.prototype.hasOwnProperty.call(configData, "awsAccounts")) {
+        configData.awsAccounts = [];
+      }
+
+      if (!Object.prototype.hasOwnProperty.call(configData, "gcpAccounts")) {
+        configData.gcpAccounts = [];
+      }
+
       configData.keyDir = await this.askForKeyDirectory();
     } else {
       configData = {

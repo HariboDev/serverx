@@ -18,7 +18,7 @@ $ npm install -g @haribodev/serverx
 $ serverx COMMAND
 running command...
 $ serverx (--version)
-@haribodev/serverx/1.1.0 linux-x64 node-v16.13.2
+@haribodev/serverx/1.1.1 linux-x64 node-v16.13.2
 $ serverx --help [COMMAND]
 USAGE
   $ serverx COMMAND
@@ -86,7 +86,7 @@ EXAMPLES
   $ serverx accounts modify
 ```
 
-_See code: [dist/commands/accounts/index.js](https://github.com/HariboDev/serverx/blob/v1.1.0/dist/commands/accounts/index.js)_
+_See code: [dist/commands/accounts/index.js](https://github.com/HariboDev/serverx/blob/v1.1.1/dist/commands/accounts/index.js)_
 
 ## `serverx accounts deregister TYPE`
 
@@ -402,8 +402,8 @@ list all the commands
 
 ```
 USAGE
-  $ serverx commands [--json] [-h] [--hidden] [--columns <value> | -x] [--sort <value>] [--filter <value>]
-    [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
+  $ serverx commands [--json] [-h] [--hidden] [--tree] [--columns <value> | -x] [--sort <value>] [--filter
+    <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
 
 FLAGS
   -h, --help         Show CLI help.
@@ -417,6 +417,7 @@ FLAGS
   --output=<option>  output in a more machine friendly format
                      <options: csv|json|yaml>
   --sort=<value>     property to sort by (prepend '-' for descending)
+  --tree             show tree of commands
 
 GLOBAL FLAGS
   --json  Format output as json.
@@ -425,7 +426,7 @@ DESCRIPTION
   list all the commands
 ```
 
-_See code: [@oclif/plugin-commands](https://github.com/oclif/plugin-commands/blob/v2.1.0/src/commands/commands.ts)_
+_See code: [@oclif/plugin-commands](https://github.com/oclif/plugin-commands/blob/v2.2.0/src/commands/commands.ts)_
 
 ## `serverx configure`
 
@@ -444,7 +445,7 @@ EXAMPLES
   $ serverx configure
 ```
 
-_See code: [dist/commands/configure/index.js](https://github.com/HariboDev/serverx/blob/v1.1.0/dist/commands/configure/index.js)_
+_See code: [dist/commands/configure/index.js](https://github.com/HariboDev/serverx/blob/v1.1.1/dist/commands/configure/index.js)_
 
 ## `serverx connect`
 
@@ -471,7 +472,7 @@ DESCRIPTION
   Ability to override username, key directory, key file and port.
 ```
 
-_See code: [dist/commands/connect/index.js](https://github.com/HariboDev/serverx/blob/v1.1.0/dist/commands/connect/index.js)_
+_See code: [dist/commands/connect/index.js](https://github.com/HariboDev/serverx/blob/v1.1.1/dist/commands/connect/index.js)_
 
 ## `serverx help [COMMAND]`
 
@@ -521,7 +522,7 @@ EXAMPLES
   $ serverx servers modify
 ```
 
-_See code: [dist/commands/servers/index.js](https://github.com/HariboDev/serverx/blob/v1.1.0/dist/commands/servers/index.js)_
+_See code: [dist/commands/servers/index.js](https://github.com/HariboDev/serverx/blob/v1.1.1/dist/commands/servers/index.js)_
 
 ## `serverx servers add`
 
@@ -706,7 +707,7 @@ EXAMPLES
   $ serverx update gcp
 ```
 
-_See code: [dist/commands/update/index.js](https://github.com/HariboDev/serverx/blob/v1.1.0/dist/commands/update/index.js)_
+_See code: [dist/commands/update/index.js](https://github.com/HariboDev/serverx/blob/v1.1.1/dist/commands/update/index.js)_
 
 ## `serverx update aws`
 
@@ -726,7 +727,7 @@ FLAGS
                             <options: us-east-1|us-east-2|us-west-1|us-west-2|ap-south-1|ap-northeast-1|ap-northeast-2|a
                             p-southeast-1|ap-southeast-2|ca-central-1|eu-central-1|eu-west-1|eu-west-2|eu-west-3|eu-nort
                             h-1|sa-east-1>
-  -s, --[no-]save           Save your new IP address to your config file. Not ideal for consecutive commands
+  -s, --[no-]save           Save your new IP address to your config file. Ideal for consecutive commands
   -t, --to=<value>          Only update security groups with this as its new source IP address. Overrides users actual
                             current IP
 
@@ -771,7 +772,7 @@ FLAGS
       1|us-east1|us-east4|us-west1|us-west2|us-west3|us-west4>
 
   -s, --[no-]save
-      Save your new IP address to your config file. Not ideal for consecutive commands
+      Save your new IP address to your config file. Ideal for consecutive commands
 
   -t, --to=<value>
       Only update firewall and cloud armor armor rules with this as its new source IP address. Overrides users actual
